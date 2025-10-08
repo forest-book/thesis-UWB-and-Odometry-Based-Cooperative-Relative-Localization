@@ -34,7 +34,7 @@ class UAV:
         elif self.id == 2:
             self.true_velocity = np.array([-2 * np.sin(k), 2 * np.cos(k)]) # 論文のv_2kのy成分はsin(k)だが、軌跡からcos(k)の誤植と判断
         elif self.id == 3:
-            self.true_velocity = np.array([np.sin(k), np.cos(k)])
+            self.true_velocity = np.array([np.cos(k/5) - np.sin(k/5) * np.cos(k), np.sin(k/5) + np.cos(k/5) * np.cos(k)])
         elif self.id == 4:
             self.true_velocity = np.array([-3 * np.sin(k), 3 * np.cos(k)])
         elif self.id == 5:
