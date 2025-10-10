@@ -38,7 +38,7 @@ class UAV:
         elif self.id == 4:
             self.true_velocity = np.array([-3 * np.sin(k), 3 * np.cos(k)])
         elif self.id == 5:
-            self.true_velocity = np.array([k/6, 0])
+            self.true_velocity = np.array([1/6, 0])
         elif self.id == 6:
             self.true_velocity = np.array([-10/3 * np.sin(k/3), 5/3 * np.cos(k/3)])
 
