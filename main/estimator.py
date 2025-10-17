@@ -43,6 +43,15 @@ class Estimator:
         print(f"次の推定値{chi_hat_ij_i_k_plus_1}")
         return chi_hat_ij_i_k_plus_1
     
+    def calc_fused_RL_estimate(self,
+                               
+    ):
+        """
+        論文の式(5)に基づき，融合相対自己位置推定（fused RL estimation）を計算
+        Args:
+
+        """
+
 
 # --- サンプルデータ定義 ---
 # 現在の相対位置の推定値 (2次元ベクトル)
