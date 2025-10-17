@@ -1,6 +1,3 @@
-# ---------------------------------------------------------------------------- #
-# Component 2: Estimator Module
-# ---------------------------------------------------------------------------- #
 import numpy as np
 
 class Estimator:
@@ -30,19 +27,20 @@ class Estimator:
         # 式(1)を構成要素に分解
         # 第1項：現在の推定値
         current_RL_term = chi_hat_ij_i_k
-
+        print(f"現在の推定値：{current_estimate}")
         # 第2項：速度に基づく予測項
         predicton_term = T * noisy_v
-
+        print(f"予測項：{predicton_term}")
         # 第3項：観測誤差に基づく補正項
         # 角括弧[]内のスカラー誤差を計算
         scalar_error = (noisy_d * noisy_d_dot) - (noisy_v.T @ chi_hat_ij_i_k)
+        print(f"スカラー誤差{scalar_error}")
         # スカラー誤差を用いてベクトル補正項を計算
         correction_term = gamma * T * noisy_v * scalar_error
-
+        print(f"補正項{correction_term}")
         # 全ての項を結合して次の推定値を算出
         chi_hat_ij_i_k_plus_1 = current_RL_term + predicton_term + correction_term
-
+        print(f"次の推定値{chi_hat_ij_i_k_plus_1}")
         return chi_hat_ij_i_k_plus_1
     
 
