@@ -58,14 +58,15 @@ T_sampling = 0.05 # サンプリング周期 50ms (20Hz)
 gamma_gain = 0.5  # ゲイン
 est = Estimator()
 # --- 関数を呼び出して計算 ---
-next_estimate = est.calc_direct_RL_estimate(
-    chi_hat_ij_i_k=current_estimate,
-    noisy_v=relative_velocity,
-    noisy_d=distance,
-    noisy_d_dot=distance_rate,
-    T=T_sampling,
-    gamma=gamma_gain
-)
+# 直接推定推定式のデバッグ用
+# next_estimate = est.calc_direct_RL_estimate(
+#     chi_hat_ij_i_k=current_estimate,
+#     noisy_v=relative_velocity,
+#     noisy_d=distance,
+#     noisy_d_dot=distance_rate,
+#     T=T_sampling,
+#     gamma=gamma_gain
+# )
 
 # --- 結果の表示 ---
 print(f"現在の推定値 (x̂_k): {current_estimate}")
