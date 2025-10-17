@@ -2,7 +2,7 @@ import numpy as np
 
 class Estimator:
     """
-    論文の核心であるRL推定アルゴリズムを実装するクラス。
+    論文の核心であるRL推定アルゴリズムを実装するクラス
     """
     def calc_direct_RL_estimate(self,
                                 chi_hat_ij_i_k:np.ndarray,
