@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Optional
 import datetime
 
 # データ保存時の日時
@@ -17,7 +17,7 @@ class DataLogger:
     def __init__(self):
         self.timestamp: List[float] = []
         self.uav_trajectories: Dict[str, List[np.ndarray]] = defaultdict(list)
-        self.fused_RL_errors: Dict[str, List[np.ndarray]] = defaultdict(list)
+        self.fused_RL_errors: Dict[str, List[float]] = defaultdict(list)
 
     def logging_timestamp(self, time: float):
         self.timestamp.append(time)
@@ -103,7 +103,7 @@ class DataLogger:
         return statistics
 
     def save_fused_RL_error_statistics(self, transient_time: float = 10.0, 
-                                       filename: str = None,
+                                       filename: Optional[str] = None,
                                        format: str = 'json') -> str:
         """
         融合推定誤差の統計情報を外部ファイルに保存する関数
@@ -285,7 +285,7 @@ class Plotter:
         ax.grid(True)
 
         # 図4(e)のズームインした図を挿入
-        axins = ax.inset_axes([0.5, 0.5, 0.4, 0.4])
+        axins = ax.inset_axes((0.5, 0.5, 0.4, 0.4))
         for i in range(2, 7):
              errors = data[f'uav{i}_fused_error']
              valid_times = [t for t, e in zip(data['time'], errors) if e is not None]
