@@ -217,7 +217,7 @@ class MainController:
                     kappa_I=kappa_I
                 ) # 次のステップ(k=loop + 1)の時の相対位置を融合推定
                 
-                fused_key = self.make_fused_estimate_key(uav_i.id, target_j_id)
+                # fused_keyは188行目で生成済みなので再利用
                 uav_i.fused_estimates[fused_key].append(next_fused.copy())
 
             # 結果をlogに保存する（update_state前の位置を記録）
