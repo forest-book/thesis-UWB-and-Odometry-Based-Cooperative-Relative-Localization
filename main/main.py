@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List, Tuple
 
-from quadcopter import UAV, Scenario
+from quadcopter import UAV
 from estimator import Estimator
 from data_handler import Plotter, DataLogger
 from config_loader import ConfigLoader
@@ -253,41 +253,12 @@ class MainController:
         self.data_logger.save_fused_RL_error_statistics(transient_time=10.0, format='txt')
 
 if __name__ == '__main__':
-    # 設定ファイルから読み込む方法 (推奨)
+    # 設定ファイルから読み込む
     # JSON形式
     #simulation_params = ConfigLoader.load('../config/simulation_config.json')
     
-    # YAML形式を使用する場合 (要: pip install pyyaml)
+    # YAML形式
     simulation_params = ConfigLoader.load('../config/simulation_config.yaml')
-    
-    # 従来の方法: コード内で直接定義
-    # simulation_params = {
-    #     'DURATION': 300,
-    #     'T': 0.05,  # サンプリング周期 T
-    #     'GAMMA': 0.01, # ゲイン γ
-    #     'TARGET_ID': 1, # 推定目標
-    #     'EVENT': Scenario.SUDDEN_TURN, #シナリオ選択
-    #     'INITIAL_POSITIONS': {
-    #         1: [0, 0], 
-    #         2: [2, -30], 
-    #         3: [20, -15],
-    #         4: [-20, 8], 
-    #         5: [-14, 8], 
-    #         6: [-10, -30]
-    #     },
-    #     'NEIGHBORS': { 
-    #         1: [],         #UAV1の隣接機(推定対象のため無し)
-    #         2: [1],        #UAV2の隣接機        
-    #         3: [1, 4, 5],  #UAV3の隣接機      
-    #         4: [1],        #UAV4の隣接機
-    #         5: [3, 4],     #UAV5の隣接機
-    #         6: [4]         #UAV6の隣接機
-    #     },
-    #     'NOISE': { 
-    #         'delta_bar': 0.5,
-    #         'dist_bound': 0.05
-    #     }
-    # }
 
     controller = MainController(simulation_params)
     controller.run()
