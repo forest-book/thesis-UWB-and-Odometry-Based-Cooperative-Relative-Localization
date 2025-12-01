@@ -167,7 +167,6 @@ class MainController:
                     ) # 次のステップ(k=loop + 1)の時の相対位置を直接推定
                     
                     # uav_iは直接推定値を持っている
-                    key = self.make_direct_estimate_key(uav_i.id, neighbor_id)
                     uav_i.direct_estimates[key].append(next_direct.copy())
 
             # 2.融合推定の実行
