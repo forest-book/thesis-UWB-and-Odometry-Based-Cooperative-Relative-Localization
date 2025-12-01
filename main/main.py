@@ -107,7 +107,7 @@ class MainController:
 
         return true_v_ij + vel_noise, true_d_ij + dist_noise, true_d_dot_ij + dist_rate_noise
 
-    def calc_RL_estimation_error(self, uav_i_id, target_j_id, loop_num):
+    def calc_RL_estimation_error(self, uav_i_id: int, target_j_id: int, loop_num: int) -> float:
         # 真の相対位置
         target_uav = self.get_uav_by_id(target_j_id)
         uav_i = self.get_uav_by_id(uav_i_id)
@@ -172,7 +172,7 @@ class MainController:
 
             # 2.融合推定の実行
             # UAV_i(i=2~6)がUAV_1への融合推定値を算出する
-            target_j_id = self.params.get('TARGET_ID')
+            target_j_id: int = self.params['TARGET_ID']
             for uav_i in self.uavs:
                 if uav_i.id == target_j_id:
                     continue # UAV1 (j=1) は自身への推定を行わない
