@@ -3,7 +3,8 @@ from typing import List, Tuple
 
 from quadcopter import UAV
 from estimator import Estimator
-from data_handler import Plotter, DataLogger
+from data_logger import DataLogger
+from plotter import Plotter
 from config_loader import ConfigLoader
 
 class MainController:
@@ -244,10 +245,14 @@ class MainController:
             self.show_simulation_progress(loop=loop)
 
         # ロギングした推定誤差をcsv出力
-        self.data_logger.save_fused_RL_errors_to_csv()
-        self.data_logger.save_UAV_trajectories_data_to_csv()
-        Plotter.plot_UAV_trajectories_from_csv()
-        Plotter.plot_fused_RL_errors_from_csv()
+        trajectory_filename = self.data_logger.save_UAV_trajectories_data_to_csv()
+        error_filename = self.data_logger.save_fused_RL_errors_to_csv()
+        
+        # グラフ生成
+        Plotter.plot_UAV_trajectories_from_csv(trajectory_filename)
+        Plotter.plot_fused_RL_errors_from_csv(error_filename)
+        
+        # 統計情報の表示と保存
         self.data_logger.print_fused_RL_error_statistics(transient_time=10.0)
         self.data_logger.save_fused_RL_error_statistics(transient_time=10.0)
         self.data_logger.save_fused_RL_error_statistics(transient_time=10.0, format='txt')
