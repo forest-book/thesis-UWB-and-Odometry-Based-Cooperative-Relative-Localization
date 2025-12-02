@@ -95,8 +95,8 @@ class Plotter:
                 valid_errors = errors[~errors.isna()]
                 if not valid_errors.empty:
                     axins.plot(valid_times, valid_errors, color=colors.get(i, 'k'))
-            axins.set_xlim(100, 150)  # 論文のズーム範囲に合わせる
-            axins.set_ylim(0, 0.6)
+            axins.set_xlim(98, 110)  # 論文のズーム範囲に合わせる
+            axins.set_ylim(0, 0.8)
             axins.grid(True)
             ax.indicate_inset_zoom(axins, edgecolor="black")  # ズーム箇所を四角で表示
 
