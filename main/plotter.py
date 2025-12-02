@@ -45,7 +45,7 @@ class Plotter:
             
             save_path = f'../data/graph/trajectories/{save_filename}'
             plt.savefig(save_path)
-            print(f"Graph successfully saved to {save_filename}")
+            print(f"Graph successfully saved to {save_path}")
             plt.show()
             plt.close()
 
