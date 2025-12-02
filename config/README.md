@@ -5,11 +5,13 @@
 ## ファイル形式
 
 ### JSON形式 (simulation_config.json)
+
 - 標準的なJSON形式
 - Pythonの標準ライブラリのみで読み込み可能
 - 追加のパッケージインストール不要
 
 ### YAML形式 (simulation_config.yaml)
+
 - 人間が読みやすい形式
 - コメントが書ける
 - `pyyaml`パッケージが必要: `pip install pyyaml`
@@ -17,21 +19,25 @@
 ## パラメータ説明
 
 ### 基本設定
+
 - **DURATION**: シミュレーション時間 [秒]
 - **T**: サンプリング周期 [秒]
 - **GAMMA**: 推定ゲイン γ
 - **TARGET_ID**: 推定目標UAVのID (通常は1)
 
 ### シナリオ設定
+
 - **EVENT**: 飛行シナリオ
   - `CONTINUOUS`: 通常飛行
   - `SUDDEN_TURN`: 急旋回
 
 ### UAV配置
+
 - **INITIAL_POSITIONS**: 各UAVの初期位置 [x, y] (m)
 - **NEIGHBORS**: 各UAVの隣接機リスト
 
 ### ノイズ設定
+
 - **delta_bar**: 速度ノイズの幅 [m/s]
 - **dist_bound**: 距離ノイズの幅 [m]
 
