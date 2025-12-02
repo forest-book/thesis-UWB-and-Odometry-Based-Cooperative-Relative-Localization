@@ -92,9 +92,9 @@ class Plotter:
             axins = ax.inset_axes((0.5, 0.5, 0.4, 0.4))
             for i in range(2, 7):
                 errors = data[f'uav{i}_fused_error']
-                valid_times = [t for t, e in zip(data['time'], errors) if e is not None]
-                valid_errors = [e for e in errors if e is not None]
-                if valid_errors:
+                valid_times = data['time'][~errors.isna()]
+                valid_errors = errors[~errors.isna()]
+                if not valid_errors.empty:
                     axins.plot(valid_times, valid_errors, color=colors.get(i, 'k'))
             axins.set_xlim(100, 150)  # 論文のズーム範囲に合わせる
             axins.set_ylim(0, 0.6)
