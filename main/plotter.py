@@ -110,7 +110,6 @@ class Plotter:
             print(f"Graph successfully saved to {save_path}")
             
             plt.show()
-            plt.close()
 
         except FileNotFoundError:
             print(f"Error: The file {filename} was not found.")
