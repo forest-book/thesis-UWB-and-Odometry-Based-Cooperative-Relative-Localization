@@ -59,9 +59,9 @@ class MainController:
             true_initial_rel_pos: np.ndarray = target_uav.true_position - uav_i.true_position
             # 一様乱数を生成して真値に加算
             noise = np.random.uniform(-noise_bound, noise_bound, size=true_initial_rel_pos.shape)
-            noisy_inital_rel_pos = true_initial_rel_pos + noise
+            noisy_initial_rel_pos = true_initial_rel_pos + noise
             key = self.make_fused_estimate_key(uav_i.id, target_id)
-            uav_i.fused_estimates[key].append(noisy_inital_rel_pos.copy())
+            uav_i.fused_estimates[key].append(noisy_initial_rel_pos.copy())
 
     def initialize(self):
         """システムの初期化"""
