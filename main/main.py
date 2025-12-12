@@ -44,9 +44,24 @@ class MainController:
                 true_initial_rel_pos = neighbor_uav.true_position - uav.true_position
                 # 一様乱数を生成して真値に加算
                 noise = np.random.uniform(-noise_bound, noise_bound, size=true_initial_rel_pos.shape)
-                noisy_initial_rel_pos = true_initial_rel_pos + noise
+                noisy_initial_rel_pos = true_initial_rel_pos
                 key = self.make_direct_estimate_key(uav.id, neighbor_id)
                 uav.direct_estimates[key].append(noisy_initial_rel_pos.copy())
+
+    def initialize_fused_estimates(self):
+        """融合推定値の初期化（乱数付与）"""
+        noise_bound = self.params['NOISE']['initialization_bound']  # 一様乱数の範囲を設定
+        target_id = self.params['TARGET_ID']
+        target_uav = self.get_uav_by_id(target_id)
+        for uav_i in self.uavs:
+            if uav_i.id == target_id:
+                continue  # TARGET自身は自分への推定を行わない
+            true_initial_rel_pos: np.ndarray = target_uav.true_position - uav_i.true_position
+            # 一様乱数を生成して真値に加算
+            noise = np.random.uniform(-noise_bound, noise_bound, size=true_initial_rel_pos.shape)
+            noisy_inital_rel_pos = true_initial_rel_pos + noise
+            key = self.make_fused_estimate_key(uav_i.id, target_id)
+            uav_i.fused_estimates[key].append(noisy_inital_rel_pos.copy())
 
     def initialize(self):
         """システムの初期化"""
@@ -68,14 +83,7 @@ class MainController:
 
         # k=0での融合推定値を設定(融合推定値の初期化)
         # UAV_i(i=2~6)から見たUAV1の相対位置を融合推定
-        target_id = self.params['TARGET_ID']
-        target_uav = self.get_uav_by_id(target_id)
-        for uav_i in self.uavs:
-            if uav_i.id == target_id:
-                continue  # TARGET自身は自分への推定を行わない
-            true_initial_rel_pos: np.ndarray = target_uav.true_position - uav_i.true_position
-            key = self.make_fused_estimate_key(uav_i.id, target_id)
-            uav_i.fused_estimates[key].append(true_initial_rel_pos.copy())
+        self.initialize_fused_estimates()
 
         # 推定式はステップk(自然数)毎に状態を更新するため
         self.loop_amount = int(self.params['DURATION'] / self.params['T'])
