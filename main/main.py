@@ -35,6 +35,15 @@ class MainController:
         """融合推定値の辞書キーを生成する"""
         return f"pi_{from_uav_id}_{to_uav_id}"
 
+    def initialize_direct_estimates(self):
+        """直接推定値の初期化"""
+        for uav in self.uavs:
+            for neighbor_id in uav.neighbors:
+                neighbor_uav = self.get_uav_by_id(neighbor_id)
+                true_initial_rel_pos = neighbor_uav.true_position - uav.true_position
+                key = self.make_direct_estimate_key(uav.id, neighbor_id)
+                uav.direct_estimates[key].append(true_initial_rel_pos.copy())
+
     def initialize(self):
         """システムの初期化"""
         print("initialize simulation settings...")
@@ -51,12 +60,7 @@ class MainController:
 
         # k=0での直接推定値を設定(直接推定値の初期化)
         # 隣接機に対してのみ初期化
-        for uav in self.uavs:
-            for neighbor_id in uav.neighbors:
-                neighbor_uav = self.get_uav_by_id(neighbor_id)
-                true_initial_rel_pos = neighbor_uav.true_position - uav.true_position
-                key = self.make_direct_estimate_key(uav.id, neighbor_id)
-                uav.direct_estimates[key].append(true_initial_rel_pos.copy())
+        self.initialize_direct_estimates()
 
         # k=0での融合推定値を設定(融合推定値の初期化)
         # UAV_i(i=2~6)から見たUAV1の相対位置を融合推定
