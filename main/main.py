@@ -36,13 +36,17 @@ class MainController:
         return f"pi_{from_uav_id}_{to_uav_id}"
 
     def initialize_direct_estimates(self):
-        """直接推定値の初期化"""
+        """直接推定値の初期化（乱数付与）"""
+        noise_bound = self.params['NOISE']['initialization_bound']  # 一様乱数の範囲を設定
         for uav in self.uavs:
             for neighbor_id in uav.neighbors:
                 neighbor_uav = self.get_uav_by_id(neighbor_id)
                 true_initial_rel_pos = neighbor_uav.true_position - uav.true_position
+                # 一様乱数を生成して真値に加算
+                noise = np.random.uniform(-noise_bound, noise_bound, size=true_initial_rel_pos.shape)
+                noisy_initial_rel_pos = true_initial_rel_pos + noise
                 key = self.make_direct_estimate_key(uav.id, neighbor_id)
-                uav.direct_estimates[key].append(true_initial_rel_pos.copy())
+                uav.direct_estimates[key].append(noisy_initial_rel_pos.copy())
 
     def initialize(self):
         """システムの初期化"""
