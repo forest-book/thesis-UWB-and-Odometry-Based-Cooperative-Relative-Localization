@@ -44,7 +44,7 @@ class MainController:
                 true_initial_rel_pos = neighbor_uav.true_position - uav.true_position
                 # 一様乱数を生成して真値に加算
                 noise = np.random.uniform(-noise_bound, noise_bound, size=true_initial_rel_pos.shape)
-                noisy_initial_rel_pos = true_initial_rel_pos
+                noisy_initial_rel_pos = true_initial_rel_pos + noise
                 key = self.make_direct_estimate_key(uav.id, neighbor_id)
                 uav.direct_estimates[key].append(noisy_initial_rel_pos.copy())
 
