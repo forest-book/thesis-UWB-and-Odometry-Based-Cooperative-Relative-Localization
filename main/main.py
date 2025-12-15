@@ -44,7 +44,7 @@ class MainController:
                 true_initial_rel_pos = neighbor_uav.true_position - uav.true_position
                 # 一様乱数を生成して真値に加算
                 noise = np.random.uniform(-noise_bound, noise_bound, size=true_initial_rel_pos.shape)
-                noisy_initial_rel_pos = true_initial_rel_pos
+                noisy_initial_rel_pos = true_initial_rel_pos + noise
                 key = self.make_direct_estimate_key(uav.id, neighbor_id)
                 uav.direct_estimates[key].append(noisy_initial_rel_pos.copy())
 
@@ -269,9 +269,9 @@ class MainController:
         Plotter.plot_fused_RL_errors_from_csv(error_filename)
         
         # 統計情報の表示と保存
-        self.data_logger.print_fused_RL_error_statistics(transient_time=10.0)
-        self.data_logger.save_fused_RL_error_statistics(transient_time=10.0)
-        self.data_logger.save_fused_RL_error_statistics(transient_time=10.0, format='txt')
+        self.data_logger.print_fused_RL_error_statistics(transient_time=120.0)
+        self.data_logger.save_fused_RL_error_statistics(transient_time=120.0)
+        self.data_logger.save_fused_RL_error_statistics(transient_time=120.0, format='txt')
 
 if __name__ == '__main__':
     # 設定ファイルから読み込む
