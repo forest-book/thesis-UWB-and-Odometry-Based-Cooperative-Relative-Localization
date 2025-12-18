@@ -68,7 +68,7 @@ class Plotter:
             data = pd.read_csv(file_path)
 
             fig, ax = plt.subplots(figsize=(12, 6))
-            colors = {2: 'c', 3: 'b', 4: 'g', 5: 'r', 6: 'm'}
+            colors = {2: 'orange', 3: 'green', 4: 'red', 5: 'magenta', 6: 'brown'}
 
             for i in range(2, 7):
                 errors = data[f'uav{i}_fused_error']
