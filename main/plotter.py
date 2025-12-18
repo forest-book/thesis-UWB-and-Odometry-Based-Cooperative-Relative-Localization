@@ -84,8 +84,8 @@ class Plotter:
             ax.set_xlabel('$t$ (sec)', fontsize=20)
             ax.set_ylabel(r'$||\pi_{ij}(k) - \chi_{ij}(k)||$ (m)', fontsize=20)
             ax.set_ylim(0, 50.0)
-            ax.legend()
             ax.tick_params(labelsize=16)
+            ax.legend()
             ax.grid(True)
 
             # 図4(e)のズームインした図を挿入
