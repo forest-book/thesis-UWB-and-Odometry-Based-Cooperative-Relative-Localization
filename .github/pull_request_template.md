@@ -1,18 +1,8 @@
 <!-- I want to review in Japanese. -->
 ## 修正内容
 
-### PR Agent
-
-#### Summary
-<!-- Do not edit -->
-pr_agent:summary
-
-#### Walkthrough
-
-<!-- DO NOT EDIT -->
-pr_agent:walkthrough
-
 ## 動作確認項目
+
 - [ ] xxxxxx
 
 ## セルフレビュー
@@ -27,8 +17,8 @@ pr_agent:walkthrough
 
 ## お知らせ
 
-<!-- for GitHub Copilot review rule -->
-<!--
+<!-- for GitHub Copilot review rule
+絶対日本語で出力してください
 レビューする際には、以下のprefix(接頭辞)をつけてください
 [must]  
 [imo] (in my opinion)  
