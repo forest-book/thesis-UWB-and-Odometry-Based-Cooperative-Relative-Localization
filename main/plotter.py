@@ -81,7 +81,7 @@ class Plotter:
                             color=colors.get(i, 'k'))
 
             ax.set_title('Consensus-based RL Fusion Estimation', fontsize=20, fontweight='bold')
-            ax.set_xlabel('$t$ (sec)', fontsize=20)
+            ax.set_xlabel('$k$ (sec)', fontsize=20)
             ax.set_ylabel(r'$||\pi_{ij}(k) - \chi_{ij}(k)||$ (m)', fontsize=20)
             ax.set_ylim(0, 50.0)
             ax.tick_params(labelsize=16)
