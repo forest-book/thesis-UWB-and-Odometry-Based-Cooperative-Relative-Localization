@@ -80,9 +80,9 @@ class Plotter:
                             label=rf'$||\pi_{{{i}1}} - \chi_{{{i}1}}||$', 
                             color=colors.get(i, 'k'))
 
-            ax.set_title('Consensus-based RL Fusion Estimation', fontsize=16, fontweight='bold')
-            ax.set_xlabel('$k$ (sec)', fontsize=14)
-            ax.set_ylabel(r'$||\pi_{ij}(k) - \chi_{ij}(k)||$ (m)', fontsize=14)
+            ax.set_title('Consensus-based RL Fusion Estimation', fontsize=20, fontweight='bold')
+            ax.set_xlabel('$t$ (sec)', fontsize=20)
+            ax.set_ylabel(r'$||\pi_{ij}(k) - \chi_{ij}(k)||$ (m)', fontsize=20)
             ax.set_ylim(0, 50.0)
             ax.legend()
             ax.grid(True)
