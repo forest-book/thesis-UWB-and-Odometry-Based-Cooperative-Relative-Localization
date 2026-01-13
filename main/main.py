@@ -148,26 +148,31 @@ class MainController:
         if(loop * 100 // self.loop_amount) > ((loop - 1) *100 // self.loop_amount):
             print(f"simulation progress: {loop *100 // self.loop_amount}%")
 
+    def build_measurements_cache(self) -> dict:
+        """全UAVペア間の測定値を事前計算してキャッシュする"""
+        measurements_cache = {}
+        for uav_i in self.uavs:
+            for uav_j in self.uavs:
+                if uav_i.id == uav_j.id:
+                    continue
+                # 測定は方向性があるため、キー (i, j) は「uav_i から uav_j への測定」を表す（順序は正規化しない）
+                key = (uav_i.id, uav_j.id)
+                noisy_v, noisy_d, noisy_d_dot = self.get_noisy_measurements(
+                    uav_i, uav_j,
+                    add_vel_noise=True,
+                    add_dist_noise=True,
+                    add_dist_rate_noise=True
+                )
+                measurements_cache[key] = (noisy_v, noisy_d, noisy_d_dot)
+        return measurements_cache
+
     def run(self):
         """メインループの実行"""
         self.initialize()
 
         for loop in range(self.loop_amount):
             # 各ループの開始時に全UAVペア間のノイズ付き測定値を事前計算してキャッシュ
-            measurements_cache = {}
-            for uav_i in self.uavs:
-                for uav_j in self.uavs:
-                    if uav_i.id == uav_j.id:
-                        continue
-                    # 測定は方向性があるため、キー (i, j) は「uav_i から uav_j への測定」を表す（順序は正規化しない）
-                    key = (uav_i.id, uav_j.id)
-                    noisy_v, noisy_d, noisy_d_dot = self.get_noisy_measurements(
-                        uav_i, uav_j,
-                        add_vel_noise=True,
-                        add_dist_noise=True,
-                        add_dist_rate_noise=True
-                    )
-                    measurements_cache[key] = (noisy_v, noisy_d, noisy_d_dot)
+            measurements_cache = self.build_measurements_cache()
 
             # 1.直接推定の実行
             for uav_i in self.uavs:
