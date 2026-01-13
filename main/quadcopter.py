@@ -12,10 +12,13 @@ class UAV:
     各UAVの状態と機能を管理するクラス
     論文 V-A-1節「Configuration」に基づき、UAVのダイナミクスを定義
     """
-    def __init__(self, uav_id: int, initial_position: np.ndarray):
+    def __init__(self, uav_id: int,
+                 initial_position: np.ndarray,
+                 neighbors: List[int]):
         self.id: int = uav_id
         self.true_position = np.array(initial_position, dtype=float)
-        
+        self.neighbors: List[int] = neighbors
+
         k = 0
         # 論文記載の速度式
         if self.id == 1:
@@ -36,12 +39,11 @@ class UAV:
         # 推定値を保持する辞書 {target_id: estimate_vector}
         self.direct_estimates: Dict[str, List[np.ndarray]] = defaultdict(list)
         self.fused_estimates: Dict[str, List[np.ndarray]] = defaultdict(list)
-        self.neighbors: List[int] = []
 
     def update_state(self, t: int, dt: float, event: Scenario = Scenario.CONTINUOUS):
         """UAVの真の位置と速度を更新する"""
         k = t * dt  # 速度式内部のkなので実時間に変換
-        
+
         # 論文記載の速度式
         # 注: 添え字のkは離散時間ステップだが，速度式内部のkは実時間であるみたい
         # 速度は [m/s] 単位として解釈し、dt を掛けて位置を更新
