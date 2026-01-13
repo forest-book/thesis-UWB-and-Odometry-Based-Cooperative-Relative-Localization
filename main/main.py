@@ -63,13 +63,18 @@ class MainController:
             key = self.make_fused_estimate_key(uav_i.id, target_id)
             uav_i.fused_estimates[key].append(noisy_initial_rel_pos.copy())
 
+    def initialize_uav_setting(self):
+        # UAVインスタンス化と初期位置の設定
+        initial_positions: dict = self.params['INITIAL_POSITIONS']
+        self.uavs.clear() # 明示的にリセットしてから生成
+        for uav_id, position in initial_positions.items():
+            self.uavs.append(UAV(uav_id=uav_id, initial_position=position))
+
     def initialize(self):
         """システムの初期化"""
         print("initialize simulation settings...")
         # UAVインスタンス化と初期位置の設定
-        initial_positions: dict = self.params['INITIAL_POSITIONS']
-        for uav_id, position in initial_positions.items():
-            self.uavs.append(UAV(uav_id=uav_id, initial_position=position))
+        self.initialize_uav_setting()
 
         # 各UAV機の隣接機を設定
         neighbors_setting = self.params['NEIGHBORS']
