@@ -17,7 +17,7 @@ class SafeExpressionEvaluator:
         ast.Mult: operator.mul,
         ast.Div: operator.truediv,
         ast.USub: operator.neg,
-        ast.UAdd: operator.pos,
+        ast.UAdd: operator.pos
     }
     
     # 許可された関数
@@ -26,7 +26,14 @@ class SafeExpressionEvaluator:
         'cos': np.cos,
         'tan': np.tan,
         'sqrt': np.sqrt,
-        'abs': abs,
+        'abs': abs
+    }
+    
+    # 許可されたnumpy属性関数
+    ALLOWED_NP_FUNCTIONS = {
+        'sin', 'cos', 'tan', 'sqrt', 'abs',
+        'arcsin', 'arccos', 'arctan', 'arctan2',
+        'exp', 'log', 'log10', 'power', 'square'
     }
     
     def __init__(self, allowed_names: Dict[str, any]):
@@ -90,12 +97,13 @@ class SafeExpressionEvaluator:
                 # np.sin(x) のような属性アクセスの場合
                 obj = self._eval_node(node.func.value)
                 func_name = node.func.attr
-                if hasattr(obj, func_name):
+                # numpyオブジェクトの場合、ホワイトリストをチェック
+                if obj is np and func_name in self.ALLOWED_NP_FUNCTIONS:
                     func = getattr(obj, func_name)
                     args = [self._eval_node(arg) for arg in node.args]
                     return func(*args)
                 else:
-                    raise ValueError(f"許可されていない関数: {func_name}")
+                    raise ValueError(f"許可されていない関数: np.{func_name}")
             elif isinstance(node.func, ast.Name):
                 # sin(x) のような直接関数呼び出しの場合
                 func_name = node.func.id
