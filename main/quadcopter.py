@@ -1,7 +1,7 @@
 import numpy as np
 import ast
 import operator
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 from collections import defaultdict
 from enum import Enum, auto
 
@@ -65,8 +65,19 @@ class SafeExpressionEvaluator:
         except Exception as e:
             raise ValueError(f"式の評価エラー: {expression}, エラー: {e}")
     
-    def _eval_node(self, node):
-        """ASTノードを再帰的に評価する"""
+    def _eval_node(self, node: ast.AST):
+        """ASTノードを再帰的に評価する
+        
+        Parameters:
+        -----------
+        node : ast.AST
+            評価するASTノード
+            
+        Returns:
+        --------
+        Union[float, int, np.ndarray]
+            評価結果
+        """
         if isinstance(node, ast.Constant):  # Python 3.8+
             return node.value
         elif isinstance(node, ast.Num):  # Python 3.7以前との互換性
@@ -95,15 +106,27 @@ class SafeExpressionEvaluator:
             # 関数呼び出しの処理
             if isinstance(node.func, ast.Attribute):
                 # np.sin(x) のような属性アクセスの場合
-                obj = self._eval_node(node.func.value)
+                # まず、属性の名前を取得（評価前）
+                if not isinstance(node.func.value, ast.Name):
+                    raise ValueError("許可されていない複雑な属性アクセス")
+                
+                obj_name = node.func.value.id
                 func_name = node.func.attr
-                # numpyオブジェクトの場合、ホワイトリストをチェック
-                if obj is np and func_name in self.ALLOWED_NP_FUNCTIONS:
-                    func = getattr(obj, func_name)
-                    args = [self._eval_node(arg) for arg in node.args]
-                    return func(*args)
+                
+                # numpy モジュールのみ許可
+                if obj_name == "np" and obj_name in self.allowed_names:
+                    if func_name in self.ALLOWED_NP_FUNCTIONS:
+                        obj = self.allowed_names[obj_name]
+                        # 念のため、オブジェクトがnumpyモジュールであることを確認
+                        if obj is not np:
+                            raise ValueError("不正なnumpyオブジェクト")
+                        func = getattr(obj, func_name)
+                        args = [self._eval_node(arg) for arg in node.args]
+                        return func(*args)
+                    else:
+                        raise ValueError(f"許可されていないnumpy関数: np.{func_name}")
                 else:
-                    raise ValueError(f"許可されていない関数: np.{func_name}")
+                    raise ValueError(f"許可されていない属性アクセス: {obj_name}.{func_name}")
             elif isinstance(node.func, ast.Name):
                 # sin(x) のような直接関数呼び出しの場合
                 func_name = node.func.id
