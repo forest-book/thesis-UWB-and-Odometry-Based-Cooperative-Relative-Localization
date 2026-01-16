@@ -78,10 +78,8 @@ class SafeExpressionEvaluator:
         Union[float, int, np.ndarray]
             評価結果
         """
-        if isinstance(node, ast.Constant):  # Python 3.8+
+        if isinstance(node, ast.Constant):
             return node.value
-        elif isinstance(node, ast.Num):  # Python 3.7以前との互換性
-            return node.n
         elif isinstance(node, ast.Name):
             if node.id in self.allowed_names:
                 return self.allowed_names[node.id]
@@ -117,8 +115,9 @@ class SafeExpressionEvaluator:
                 if obj_name == "np" and obj_name in self.allowed_names:
                     if func_name in self.ALLOWED_NP_FUNCTIONS:
                         obj = self.allowed_names[obj_name]
-                        # 念のため、オブジェクトがnumpyモジュールであることを確認
-                        if obj is not np:
+                        # セキュリティチェック: numpyモジュールであることを確認
+                        import types
+                        if obj is not np or not isinstance(obj, types.ModuleType):
                             raise ValueError("不正なnumpyオブジェクト")
                         func = getattr(obj, func_name)
                         args = [self._eval_node(arg) for arg in node.args]
@@ -137,9 +136,9 @@ class SafeExpressionEvaluator:
                 else:
                     raise ValueError(f"許可されていない関数: {func_name}")
             else:
-                raise ValueError(f"許可されていない関数呼び出し: {ast.dump(node.func)}")
+                raise ValueError("許可されていない関数呼び出し")
         else:
-            raise ValueError(f"許可されていないノードタイプ: {type(node)}")
+            raise ValueError(f"許可されていないノードタイプ: {type(node).__name__}")
 
 class Scenario(Enum):
     CONTINUOUS = auto()
