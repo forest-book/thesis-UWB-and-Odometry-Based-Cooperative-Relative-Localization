@@ -5,17 +5,17 @@ from quadcopter import UAV
 from estimator import Estimator
 from data_logger import DataLogger
 from plotter import Plotter
-from config_loader import ConfigLoader
 from measurement_filter import MeasurementFilter
 
 class MainController:
     """アプリケーション全体を管理し，メインループを実行する"""
-    def __init__(self, params: dict):
+    def __init__(self, params: dict, is_result_show: bool = True):
         self.params = params
         self.uavs: List[UAV] = []
         self.loop_amount: int = 0
         self.dt = params['T']   # サンプリング周期
         self.event = params['EVENT']    # t=100sで外乱を加えるか否か
+        self.is_result_show = is_result_show
 
         self.estimator = Estimator()
         self.data_logger = DataLogger()
@@ -72,14 +72,17 @@ class MainController:
         # UAVインスタンス化と初期位置・隣接機の設定をまとめて行う
         initial_positions: dict = self.params['INITIAL_POSITIONS']
         neighbors_setting: dict = self.params['NEIGHBORS']
+        trajectory_setting: dict = self.params['UAV_TRAJECTORIES']
         self.uavs.clear() # 明示的にリセットしてから生成
         for uav_id, position in initial_positions.items():
             neighbors = neighbors_setting.get(uav_id, [])
+            trajectory = trajectory_setting.get(uav_id, None)
             self.uavs.append(
                 UAV(
                     uav_id=uav_id,
                     initial_position=position,
-                    neighbors=neighbors))
+                    neighbors=neighbors,
+                    trajectory_config=trajectory))
 
     def initialize(self):
         """システムの初期化"""
@@ -305,17 +308,10 @@ class MainController:
         error_filename = self.data_logger.save_fused_RL_errors_to_csv()
 
         # グラフ生成
-        Plotter.plot_UAV_trajectories_from_csv(trajectory_filename)
-        Plotter.plot_fused_RL_errors_from_csv(error_filename)
+        Plotter.plot_UAV_trajectories_from_csv(trajectory_filename, is_result_show=self.is_result_show)
+        Plotter.plot_fused_RL_errors_from_csv(error_filename, is_result_show=self.is_result_show)
 
         # 統計情報の表示と保存
         self.data_logger.print_fused_RL_error_statistics(transient_time=120.0)
         self.data_logger.save_fused_RL_error_statistics(transient_time=120.0)
         self.data_logger.save_fused_RL_error_statistics(transient_time=120.0, format='txt')
-
-if __name__ == '__main__':
-    # 設定ファイルから読み込む
-    simulation_params = ConfigLoader.load('../config/simulation_config.yaml')
-
-    controller = MainController(simulation_params)
-    controller.run()

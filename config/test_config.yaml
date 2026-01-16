@@ -10,7 +10,7 @@ TARGET_ID: 1   # 推定目標UAV ID
 
 # シナリオ設定
 # 選択肢: CONTINUOUS, SUDDEN_TURN
-EVENT: CONTINUOUS
+EVENT: SUDDEN_TURN
 
 # UAV初期位置 [x, y] (m)
 INITIAL_POSITIONS:
@@ -63,8 +63,3 @@ NOISE:
   delta_bar: 0.5   # 速度ノイズ幅 [m/s]
   dist_bound: 0.05 # 距離ノイズ幅 [m]
   initialization_bound: 25  # 初期推定ノイズ幅 [m]
-
-# フィルタ設定
-FILTER:
-  enabled: true   # フィルタの有効/無効
-  alpha: 0.8      # EMA係数（0〜1、小さいほど平滑化が強い。この設定値0.8は平滑化弱めで応答速度が速い）
