@@ -151,6 +151,7 @@ class MainController:
     def build_measurements_cache(self) -> dict:
         """全UAVペア間の測定値を事前計算してキャッシュする"""
         measurements_cache = {}
+        noise_enabled = self.params['NOISE']['enabled']
         for uav_i in self.uavs:
             for uav_j in self.uavs:
                 if uav_i.id == uav_j.id:
@@ -159,9 +160,9 @@ class MainController:
                 key = (uav_i.id, uav_j.id)
                 noisy_v, noisy_d, noisy_d_dot = self.get_noisy_measurements(
                     uav_i, uav_j,
-                    add_vel_noise=True,
-                    add_dist_noise=True,
-                    add_dist_rate_noise=True
+                    add_vel_noise=noise_enabled,
+                    add_dist_noise=noise_enabled,
+                    add_dist_rate_noise=noise_enabled
                 )
                 measurements_cache[key] = (noisy_v, noisy_d, noisy_d_dot)
         return measurements_cache
