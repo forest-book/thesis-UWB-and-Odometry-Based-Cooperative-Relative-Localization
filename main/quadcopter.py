@@ -1,7 +1,114 @@
 import numpy as np
+import ast
+import operator
 from typing import List, Dict, Optional
 from collections import defaultdict
 from enum import Enum, auto
+
+class SafeExpressionEvaluator:
+    """
+    安全な数式評価器
+    eval()の代わりにASTを使用して、許可された操作のみを実行する
+    """
+    # 許可された演算子
+    ALLOWED_OPERATORS = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.USub: operator.neg,
+        ast.UAdd: operator.pos,
+    }
+    
+    # 許可された関数
+    ALLOWED_FUNCTIONS = {
+        'sin': np.sin,
+        'cos': np.cos,
+        'tan': np.tan,
+        'sqrt': np.sqrt,
+        'abs': abs,
+    }
+    
+    def __init__(self, allowed_names: Dict[str, any]):
+        """
+        Parameters:
+        -----------
+        allowed_names : dict
+            許可された変数名とその値の辞書 (例: {'k': 0.0, 'np': np})
+        """
+        self.allowed_names = allowed_names
+    
+    def eval(self, expression: str) -> float:
+        """
+        安全に数式を評価する
+        
+        Parameters:
+        -----------
+        expression : str
+            評価する数式文字列
+            
+        Returns:
+        --------
+        float
+            評価結果
+        """
+        try:
+            tree = ast.parse(expression, mode='eval')
+            return self._eval_node(tree.body)
+        except Exception as e:
+            raise ValueError(f"式の評価エラー: {expression}, エラー: {e}")
+    
+    def _eval_node(self, node):
+        """ASTノードを再帰的に評価する"""
+        if isinstance(node, ast.Constant):  # Python 3.8+
+            return node.value
+        elif isinstance(node, ast.Num):  # Python 3.7以前との互換性
+            return node.n
+        elif isinstance(node, ast.Name):
+            if node.id in self.allowed_names:
+                return self.allowed_names[node.id]
+            else:
+                raise ValueError(f"許可されていない変数: {node.id}")
+        elif isinstance(node, ast.BinOp):
+            left = self._eval_node(node.left)
+            right = self._eval_node(node.right)
+            op_type = type(node.op)
+            if op_type in self.ALLOWED_OPERATORS:
+                return self.ALLOWED_OPERATORS[op_type](left, right)
+            else:
+                raise ValueError(f"許可されていない演算子: {op_type}")
+        elif isinstance(node, ast.UnaryOp):
+            operand = self._eval_node(node.operand)
+            op_type = type(node.op)
+            if op_type in self.ALLOWED_OPERATORS:
+                return self.ALLOWED_OPERATORS[op_type](operand)
+            else:
+                raise ValueError(f"許可されていない単項演算子: {op_type}")
+        elif isinstance(node, ast.Call):
+            # 関数呼び出しの処理
+            if isinstance(node.func, ast.Attribute):
+                # np.sin(x) のような属性アクセスの場合
+                obj = self._eval_node(node.func.value)
+                func_name = node.func.attr
+                if hasattr(obj, func_name):
+                    func = getattr(obj, func_name)
+                    args = [self._eval_node(arg) for arg in node.args]
+                    return func(*args)
+                else:
+                    raise ValueError(f"許可されていない関数: {func_name}")
+            elif isinstance(node.func, ast.Name):
+                # sin(x) のような直接関数呼び出しの場合
+                func_name = node.func.id
+                if func_name in self.ALLOWED_FUNCTIONS:
+                    func = self.ALLOWED_FUNCTIONS[func_name]
+                    args = [self._eval_node(arg) for arg in node.args]
+                    return func(*args)
+                else:
+                    raise ValueError(f"許可されていない関数: {func_name}")
+            else:
+                raise ValueError(f"許可されていない関数呼び出し: {ast.dump(node.func)}")
+        else:
+            raise ValueError(f"許可されていないノードタイプ: {type(node)}")
 
 class Scenario(Enum):
     CONTINUOUS = auto()
@@ -21,24 +128,19 @@ class UAV:
         self.neighbors: List[int] = neighbors
         self.trajectory_config = trajectory_config
 
-        # --- 高速化のための事前処理 ---
-        self.compiled_vx = None
-        self.compiled_vy = None
-        self.eval_context = {
-                "np": np,
-                "sin": np.sin,
-                "cos": np.cos,
-                "k": 0.0
-            }
+        # 速度式を保持
+        self.vx_formula = None
+        self.vy_formula = None
+        
+        # 安全な評価器を作成
+        self.safe_evaluator = SafeExpressionEvaluator({
+            "np": np,
+            "k": 0.0
+        })
 
         if self.trajectory_config and self.trajectory_config.get('type') == 'formula':
-            try:
-                # 文字列を「バイトコード」にコンパイルしておく
-                # filename='<string>' はエラー表示用、mode='eval' は式評価モード
-                self.compiled_vx = compile(self.trajectory_config['vx'], '<string>', 'eval')
-                self.compiled_vy = compile(self.trajectory_config['vy'], '<string>', 'eval')
-            except Exception as e:
-                print(f"Compile Error for UAV {self.id}: {e}")
+            self.vx_formula = self.trajectory_config['vx']
+            self.vy_formula = self.trajectory_config['vy']
 
         # 初期速度の計算
         self.update_velocity(t=0, dt=0)  # dtは初期化時は0でOK
@@ -53,11 +155,12 @@ class UAV:
         # 速度は [m/s] 単位として解釈し、dt を掛けて位置を更新
         k = t * dt  # 速度式内部のkなので実時間に変換
 
-        if self.compiled_vx and self.compiled_vy:
-            self.eval_context["k"] = k
+        if self.vx_formula and self.vy_formula:
+            # 安全な評価器のコンテキストを更新
+            self.safe_evaluator.allowed_names["k"] = k
             try:
-                vx = eval(self.compiled_vx, {"__builtins__": {}}, self.eval_context)
-                vy = eval(self.compiled_vy, {"__builtins__": {}}, self.eval_context)
+                vx = self.safe_evaluator.eval(self.vx_formula)
+                vy = self.safe_evaluator.eval(self.vy_formula)
                 self.true_velocity = np.array([vx, vy], dtype=float)
             except Exception as e:
                 print(f"Error calculating trajectory for UAV {self.id}: {e}")
