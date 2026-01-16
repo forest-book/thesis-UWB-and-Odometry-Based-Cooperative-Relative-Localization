@@ -6,6 +6,7 @@ from estimator import Estimator
 from data_logger import DataLogger
 from plotter import Plotter
 from config_loader import ConfigLoader
+from measurement_filter import MeasurementFilter
 
 class MainController:
     """アプリケーション全体を管理し，メインループを実行する"""
@@ -18,6 +19,10 @@ class MainController:
 
         self.estimator = Estimator()
         self.data_logger = DataLogger()
+
+        # 測定値フィルタ（指数移動平均フィルタ）
+        filter_alpha = params.get('FILTER', {}).get('alpha', 0.2)
+        self.measurement_filter = MeasurementFilter(alpha=filter_alpha)
 
     def get_uav_by_id(self, uav_id: int) -> UAV:
         """UAV IDからUAVオブジェクトを取得するヘルパーメソッド"""
@@ -152,6 +157,7 @@ class MainController:
         """全UAVペア間の測定値を事前計算してキャッシュする"""
         measurements_cache = {}
         noise_enabled = self.params['NOISE']['enabled']
+        use_filter = self.params.get('FILTER', {}).get('enabled', False)
         for uav_i in self.uavs:
             for uav_j in self.uavs:
                 if uav_i.id == uav_j.id:
@@ -164,7 +170,14 @@ class MainController:
                     add_dist_noise=noise_enabled,
                     add_dist_rate_noise=noise_enabled
                 )
-                measurements_cache[key] = (noisy_v, noisy_d, noisy_d_dot)
+
+                # 測定値フィルタを適用(有効な場合)
+                if use_filter:
+                    filtered_v, filtered_d, filtered_d_dot = self.measurement_filter.apply(
+                        key=key, measured_v=noisy_v, measured_d=noisy_d, measured_d_dot=noisy_d_dot)
+                    measurements_cache[key] = (filtered_v, filtered_d, filtered_d_dot)
+                else:
+                    measurements_cache[key] = (noisy_v, noisy_d, noisy_d_dot)
         return measurements_cache
 
     def exec_direct_estimation(self, measurements_cache: dict, loop: int) -> None:
