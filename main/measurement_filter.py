@@ -9,7 +9,7 @@ class MeasurementFilter:
         Args:
             alpha (float): フィルタの平滑化係数 (0 < alpha < 1)
                            小さいほど平滑化が強くなる（ノイズ除去効果↑、応答速度↓）
-        
+
         Raises:
             ValueError: alpha が範囲外 (0 < alpha < 1) の場合
         """
@@ -39,7 +39,7 @@ class MeasurementFilter:
         if key not in self.prev_filtered_values:
             # 初回は測定値をそのまま使用
             self.prev_filtered_values[key] = (measured_v.copy(), measured_d, measured_d_dot)
-            return measured_v, measured_d, measured_d_dot
+            return measured_v.copy(), measured_d, measured_d_dot
 
         prev_v, prev_d, prev_d_dot = self.prev_filtered_values[key]
 
@@ -52,7 +52,7 @@ class MeasurementFilter:
         self.prev_filtered_values[key] = (filtered_v.copy(), filtered_d, filtered_d_dot)
 
         return filtered_v, filtered_d, filtered_d_dot
-    
+
     def reset(self):
         """フィルタの状態をリセット"""
         self.prev_filtered_values.clear()
