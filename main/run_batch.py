@@ -34,4 +34,4 @@ if __name__ == '__main__':
             print(f"Error occurred in {config_file}: {e}")
             traceback.print_exc()
 
-print("\nAll simulations completed.")
+    print("\nAll simulations completed.")
