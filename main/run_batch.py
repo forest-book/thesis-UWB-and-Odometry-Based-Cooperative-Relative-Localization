@@ -1,6 +1,7 @@
 import os
 import glob
 import traceback
+import sys
 
 from config_loader import ConfigLoader
 from controller import MainController
@@ -13,7 +14,7 @@ if __name__ == '__main__':
 
     if not config_files:
         print("No configuration files found in", config_dir)
-        exit()
+        sys.exit()
 
     print(f"Found {len(config_files)} configuration files.")
 
