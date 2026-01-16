@@ -67,14 +67,17 @@ class MainController:
         # UAVインスタンス化と初期位置・隣接機の設定をまとめて行う
         initial_positions: dict = self.params['INITIAL_POSITIONS']
         neighbors_setting: dict = self.params['NEIGHBORS']
+        trajectory_setting: dict = self.params['UAV_TRAJECTORIES']
         self.uavs.clear() # 明示的にリセットしてから生成
         for uav_id, position in initial_positions.items():
             neighbors = neighbors_setting.get(uav_id, [])
+            trajectory = trajectory_setting.get(uav_id, None)
             self.uavs.append(
                 UAV(
                     uav_id=uav_id,
                     initial_position=position,
-                    neighbors=neighbors))
+                    neighbors=neighbors,
+                    trajectory_config=trajectory))
 
     def initialize(self):
         """システムの初期化"""

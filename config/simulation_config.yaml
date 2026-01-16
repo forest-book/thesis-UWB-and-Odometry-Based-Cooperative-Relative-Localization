@@ -30,6 +30,33 @@ NEIGHBORS:
   5: [3, 4]      # UAV5の隣接機
   6: [4]         # UAV6の隣接機
 
+# UAVが描く軌道(論文記載の速度式を基に設定)
+UAV_TRAJECTORIES:
+  1:
+    type: "formula"
+    vx: "np.cos(k / 3)"
+    vy: "-5/3 * np.sin(k / 3)"
+  2:
+    type: "formula"
+    vx: "-2 * np.sin(k)"
+    vy: "2 * np.cos(k)"
+  3:
+    type: "formula"
+    vx: "np.cos(k/5) - np.sin(k/5) * np.cos(k)"
+    vy: "np.sin(k/5) + np.cos(k/5) * np.cos(k)"
+  4:
+    type: "formula"
+    vx: "-3 * np.sin(k)"
+    vy: "3 * np.cos(k)"
+  5:
+    type: "formula"
+    vx: "1/6"
+    vy: "0"
+  6:
+    type: "formula"
+    vx: "-10/3 * np.sin(k/3)"
+    vy: "5/3 * np.cos(k/3)"
+
 # ノイズパラメータ
 NOISE:
   enabled: true

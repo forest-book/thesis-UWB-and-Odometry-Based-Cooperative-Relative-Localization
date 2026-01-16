@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Optional
 from collections import defaultdict
 from enum import Enum, auto
 
@@ -14,51 +14,49 @@ class UAV:
     """
     def __init__(self, uav_id: int,
                  initial_position: np.ndarray,
-                 neighbors: List[int]):
+                 neighbors: List[int],
+                 trajectory_config: Optional[Dict[str, str]] = None):
         self.id: int = uav_id
         self.true_position = np.array(initial_position, dtype=float)
         self.neighbors: List[int] = neighbors
+        self.trajectory_config = trajectory_config
 
-        k = 0
-        # 論文記載の速度式
-        if self.id == 1:
-            self.true_velocity = np.array([np.cos(k / 3), -5/3 * np.sin(k / 3)])
-        elif self.id == 2:
-            self.true_velocity = np.array([-2 * np.sin(k), 2 * np.cos(k)]) # 論文のv_2kのy成分はsin(k)だが、軌跡からcos(k)の誤植と判断
-        elif self.id == 3:
-            self.true_velocity = np.array([np.cos(k/5) - np.sin(k/5) * np.cos(k), np.sin(k/5) + np.cos(k/5) * np.cos(k)])
-        elif self.id == 4:
-            self.true_velocity = np.array([-3 * np.sin(k), 3 * np.cos(k)])
-        elif self.id == 5:
-            self.true_velocity = np.array([1/6, 0])
-        elif self.id == 6:
-            self.true_velocity = np.array([-10/3 * np.sin(k/3), 5/3 * np.cos(k/3)])
-        else:
-            raise ValueError("Invalid uav_id")
+        # 初期速度の計算
+        self.update_velocity(t=0, dt=0)  # dtは初期化時は0でOK
 
         # 推定値を保持する辞書 {target_id: estimate_vector}
         self.direct_estimates: Dict[str, List[np.ndarray]] = defaultdict(list)
         self.fused_estimates: Dict[str, List[np.ndarray]] = defaultdict(list)
 
+    def update_velocity(self, t: int, dt: float):
+        """現在の時刻kに基づいて速度ベクトルを更新"""
+        # 注: 添え字のkは離散時間ステップだが，速度式内部のkは実時間であるみたい
+        # 速度は [m/s] 単位として解釈し、dt を掛けて位置を更新
+        k = t * dt  # 速度式内部のkなので実時間に変換
+
+        if self.trajectory_config and self.trajectory_config.get('type') == 'formula':
+            context = {
+                "np": np,
+                "sin": np.sin,
+                "cos": np.cos,
+                "k": k
+            }
+            try:
+                vx = eval(self.trajectory_config['vx'], {"__builtins__": {}}, context)
+                vy = eval(self.trajectory_config['vy'], {"__builtins__": {}}, context)
+                self.true_velocity = np.array([vx, vy], dtype=float)
+            except Exception as e:
+                print(f"Error calculating trajectory for UAV {self.id}: {e}")
+                raise
+        else:
+            self.true_velocity = np.zeros(2)
+
     def update_state(self, t: int, dt: float, event: Scenario = Scenario.CONTINUOUS):
         """UAVの真の位置と速度を更新する"""
         k = t * dt  # 速度式内部のkなので実時間に変換
 
-        # 論文記載の速度式
-        # 注: 添え字のkは離散時間ステップだが，速度式内部のkは実時間であるみたい
-        # 速度は [m/s] 単位として解釈し、dt を掛けて位置を更新
-        if self.id == 1:
-            self.true_velocity = np.array([np.cos(k / 3), -5/3 * np.sin(k / 3)])
-        elif self.id == 2:
-            self.true_velocity = np.array([-2 * np.sin(k), 2 * np.cos(k)]) # 論文のv_2kのy成分はsin(k)だが、軌跡からcos(k)の誤植と判断
-        elif self.id == 3:
-            self.true_velocity = np.array([np.cos(k/5) - np.sin(k/5) * np.cos(k), np.sin(k/5) + np.cos(k/5) * np.cos(k)])
-        elif self.id == 4:
-            self.true_velocity = np.array([-3 * np.sin(k), 3 * np.cos(k)])
-        elif self.id == 5:
-            self.true_velocity = np.array([1/6, 0])
-        elif self.id == 6:
-            self.true_velocity = np.array([-10/3 * np.sin(k/3), 5/3 * np.cos(k/3)])
+        # 速度の更新
+        self.update_velocity(t=t, dt=dt)
 
         # シナリオ2: UAV4の急な機動変更イベント
         if self.id == 4 and event == Scenario.SUDDEN_TURN and 100 <= k < 101:
