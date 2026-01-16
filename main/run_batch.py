@@ -27,7 +27,7 @@ if __name__ == '__main__':
             simulation_params = ConfigLoader.load(config_file)
 
             # コントローラーの初期化と実行
-            controller = MainController(simulation_params)
+            controller = MainController(simulation_params, is_result_show=False)
             controller.run()
 
         except Exception as e:

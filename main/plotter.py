@@ -8,9 +8,9 @@ class Plotter:
     """
     CSVファイルからデータを読み込んでグラフを生成するクラス
     """
-    
+
     @staticmethod
-    def plot_UAV_trajectories_from_csv(filename: str, save_filename: Optional[str] = None):
+    def plot_UAV_trajectories_from_csv(filename: str, save_filename: Optional[str] = None, is_result_show: bool = True):
         """
         複数のUAVの軌跡を2Dプロットする関数
 
@@ -37,16 +37,17 @@ class Plotter:
             plt.legend()
             plt.grid(True)
             plt.axis('equal')
-            
+
             # 保存ファイル名の生成
             if save_filename is None:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
                 save_filename = f'uav_trajectories_graph_{timestamp_str}.png'
-            
+
             save_path = f'../data/graph/trajectories/{save_filename}'
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
-            plt.show()
+            if is_result_show:
+                plt.show()
 
         except FileNotFoundError:
             print(f"Error: The file {filename} was not found.")
@@ -54,7 +55,7 @@ class Plotter:
             print(f"An error occurred while plotting: {e}")
 
     @staticmethod
-    def plot_fused_RL_errors_from_csv(filename: str, save_filename: Optional[str] = None):
+    def plot_fused_RL_errors_from_csv(filename: str, save_filename: Optional[str] = None, is_result_show: bool = True):
         """
         融合推定誤差をCSVファイルから読み込んでプロットする関数
 
@@ -76,8 +77,8 @@ class Plotter:
                 valid_errors = errors[~errors.isna()]
 
                 if not valid_errors.empty:
-                    ax.plot(valid_times, valid_errors, 
-                            label=rf'$||\pi_{{{i}1}} - \chi_{{{i}1}}||$', 
+                    ax.plot(valid_times, valid_errors,
+                            label=rf'$||\pi_{{{i}1}} - \chi_{{{i}1}}||$',
                             color=colors.get(i, 'k'))
 
             ax.set_title('Consensus-based RL Fusion Estimation', fontsize=20, fontweight='bold')
@@ -105,12 +106,12 @@ class Plotter:
             if save_filename is None:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
                 save_filename = f'fused_RL_errors_graph_{timestamp_str}.png'
-            
+
             save_path = f'../data/graph/RL_errors/{save_filename}'
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
-            
-            plt.show()
+            if is_result_show:
+                plt.show()
 
         except FileNotFoundError:
             print(f"Error: The file {filename} was not found.")

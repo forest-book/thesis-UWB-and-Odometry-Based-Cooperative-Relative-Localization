@@ -9,12 +9,13 @@ from measurement_filter import MeasurementFilter
 
 class MainController:
     """アプリケーション全体を管理し，メインループを実行する"""
-    def __init__(self, params: dict):
+    def __init__(self, params: dict, is_result_show: bool = True):
         self.params = params
         self.uavs: List[UAV] = []
         self.loop_amount: int = 0
         self.dt = params['T']   # サンプリング周期
         self.event = params['EVENT']    # t=100sで外乱を加えるか否か
+        self.is_result_show = is_result_show
 
         self.estimator = Estimator()
         self.data_logger = DataLogger()
@@ -307,8 +308,8 @@ class MainController:
         error_filename = self.data_logger.save_fused_RL_errors_to_csv()
 
         # グラフ生成
-        Plotter.plot_UAV_trajectories_from_csv(trajectory_filename)
-        Plotter.plot_fused_RL_errors_from_csv(error_filename)
+        Plotter.plot_UAV_trajectories_from_csv(trajectory_filename, is_result_show=self.is_result_show)
+        Plotter.plot_fused_RL_errors_from_csv(error_filename, is_result_show=self.is_result_show)
 
         # 統計情報の表示と保存
         self.data_logger.print_fused_RL_error_statistics(transient_time=120.0)
