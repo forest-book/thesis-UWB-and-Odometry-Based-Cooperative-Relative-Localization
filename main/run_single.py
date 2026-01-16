@@ -1,4 +1,5 @@
 import os
+import sys
 from config_loader import ConfigLoader
 from controller import MainController
 
@@ -9,7 +10,7 @@ if __name__ == '__main__':
 
     if not os.path.exists(config_path):
         print(f"Error: Config file not found at {config_path}")
-        exit()
+        sys.exit()
 
     print(f"Running single simulation with: {config_path}")
 
