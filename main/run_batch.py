@@ -1,5 +1,6 @@
 import os
 import glob
+import traceback
 
 from config_loader import ConfigLoader
 from controller import MainController
@@ -31,7 +32,6 @@ if __name__ == '__main__':
 
         except Exception as e:
             print(f"Error occurred in {config_file}: {e}")
-            import traceback
             traceback.print_exc()
 
 print("\nAll simulations completed.")
