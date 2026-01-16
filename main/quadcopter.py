@@ -21,6 +21,25 @@ class UAV:
         self.neighbors: List[int] = neighbors
         self.trajectory_config = trajectory_config
 
+        # --- 高速化のための事前処理 ---
+        self.compiled_vx = None
+        self.compiled_vy = None
+        self.eval_context = {
+                "np": np,
+                "sin": np.sin,
+                "cos": np.cos,
+                "k": 0.0
+            }
+
+        if self.trajectory_config and self.trajectory_config.get('type') == 'formula':
+            try:
+                # 文字列を「バイトコード」にコンパイルしておく
+                # filename='<string>' はエラー表示用、mode='eval' は式評価モード
+                self.compiled_vx = compile(self.trajectory_config['vx'], '<string>', 'eval')
+                self.compiled_vy = compile(self.trajectory_config['vy'], '<string>', 'eval')
+            except Exception as e:
+                print(f"Compile Error for UAV {self.id}: {e}")
+
         # 初期速度の計算
         self.update_velocity(t=0, dt=0)  # dtは初期化時は0でOK
 
@@ -34,16 +53,11 @@ class UAV:
         # 速度は [m/s] 単位として解釈し、dt を掛けて位置を更新
         k = t * dt  # 速度式内部のkなので実時間に変換
 
-        if self.trajectory_config and self.trajectory_config.get('type') == 'formula':
-            context = {
-                "np": np,
-                "sin": np.sin,
-                "cos": np.cos,
-                "k": k
-            }
+        if self.compiled_vx and self.compiled_vy:
+            self.eval_context["k"] = k
             try:
-                vx = eval(self.trajectory_config['vx'], {"__builtins__": {}}, context)
-                vy = eval(self.trajectory_config['vy'], {"__builtins__": {}}, context)
+                vx = eval(self.compiled_vx, {"__builtins__": {}}, self.eval_context)
+                vy = eval(self.compiled_vy, {"__builtins__": {}}, self.eval_context)
                 self.true_velocity = np.array([vx, vy], dtype=float)
             except Exception as e:
                 print(f"Error calculating trajectory for UAV {self.id}: {e}")
