@@ -5,7 +5,7 @@ from quadcopter import UAV
 from estimator import Estimator
 from data_logger import DataLogger
 from plotter import Plotter
-from config_loader import ConfigLoader
+
 
 class MainController:
     """アプリケーション全体を管理し，メインループを実行する"""
@@ -296,10 +296,3 @@ class MainController:
         self.data_logger.print_fused_RL_error_statistics(transient_time=120.0)
         self.data_logger.save_fused_RL_error_statistics(transient_time=120.0)
         self.data_logger.save_fused_RL_error_statistics(transient_time=120.0, format='txt')
-
-if __name__ == '__main__':
-    # 設定ファイルから読み込む
-    simulation_params = ConfigLoader.load('../config/simulation_config.yaml')
-
-    controller = MainController(simulation_params)
-    controller.run()
