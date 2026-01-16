@@ -1,6 +1,7 @@
 import numpy as np
 import ast
 import operator
+import types
 from typing import List, Dict, Optional, Union
 from collections import defaultdict
 from enum import Enum, auto
@@ -45,7 +46,7 @@ class SafeExpressionEvaluator:
         """
         self.allowed_names = allowed_names
     
-    def eval(self, expression: str) -> float:
+    def eval(self, expression: str) -> Union[float, int, np.ndarray]:
         """
         安全に数式を評価する
         
@@ -56,14 +57,18 @@ class SafeExpressionEvaluator:
             
         Returns:
         --------
-        float
+        Union[float, int, np.ndarray]
             評価結果
         """
         try:
             tree = ast.parse(expression, mode='eval')
             return self._eval_node(tree.body)
-        except Exception as e:
-            raise ValueError(f"式の評価エラー: {expression}, エラー: {e}")
+        except ValueError:
+            # ValueErrorは既に適切なエラーメッセージを持っているので再スロー
+            raise
+        except Exception:
+            # その他の例外は詳細を隠してセキュリティを確保
+            raise ValueError(f"式の評価中にエラーが発生しました: {expression}")
     
     def _eval_node(self, node: ast.AST):
         """ASTノードを再帰的に評価する
@@ -116,7 +121,6 @@ class SafeExpressionEvaluator:
                     if func_name in self.ALLOWED_NP_FUNCTIONS:
                         obj = self.allowed_names[obj_name]
                         # セキュリティチェック: numpyモジュールであることを確認
-                        import types
                         if obj is not np or not isinstance(obj, types.ModuleType):
                             raise ValueError("不正なnumpyオブジェクト")
                         func = getattr(obj, func_name)
