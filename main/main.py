@@ -95,6 +95,9 @@ class MainController:
         # UAV_i(i=2~6)から見たUAV1の相対位置を融合推定
         self.initialize_fused_estimates()
 
+        # 測定値フィルタの状態をリセット
+        self.measurement_filter.reset()
+
         # 推定式はステップk(自然数)毎に状態を更新するため
         self.loop_amount = int(self.params['DURATION'] / self.params['T'])
 
