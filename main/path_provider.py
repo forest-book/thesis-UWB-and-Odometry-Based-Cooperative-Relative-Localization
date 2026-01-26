@@ -24,3 +24,19 @@ class PathProvider:
     @staticmethod
     def get_RL_error_graph_dir_path(save_dir: str) -> str:
         return os.path.join(save_dir, 'graph', 'RL_errors')
+
+    @staticmethod
+    def get_statistics_dir_path(save_dir: str, format: str) -> str:
+        return os.path.join(save_dir, 'statistics', format)
+
+    @staticmethod
+    def get_save_filepath(save_dir: str, save_filename: str) -> str:
+        return os.path.join(save_dir, save_filename)
+
+    @staticmethod
+    def get_trajectory_csv_dir_path(save_dir: str) -> str:
+        return os.path.join(save_dir, 'csv', 'trajectories')
+
+    @staticmethod
+    def get_RL_error_csv_dir_path(save_dir: str) -> str:
+        return os.path.join(save_dir, 'csv', 'RL_errors')

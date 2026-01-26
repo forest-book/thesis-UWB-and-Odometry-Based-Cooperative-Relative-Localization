@@ -6,6 +6,8 @@ from typing import List, Dict, Optional
 from collections import defaultdict
 import datetime
 
+from path_provider import PathProvider
+
 
 class DataLogger:
     """
@@ -32,32 +34,32 @@ class DataLogger:
     def calc_fused_RL_error_statistics(self, transient_time: float = 10.0) -> Dict[int, Dict[str, float]]:
         """
         各UAVの融合推定誤差の平均と分散を計算する関数
-        
+
         Args:
             transient_time (float): 過渡状態として除外する時間 [秒]（デフォルト: 10秒）
-            
+
         Returns:
             Dict[int, Dict[str, float]]: UAV IDをキーとし、'mean'と'variance'を含む辞書
                 例: {2: {'mean': 0.123, 'variance': 0.456}, 3: {...}, ...}
         """
         statistics = {}
-        
+
         # サンプリング周期を推定（最初の2つのタイムスタンプから）
         if len(self.timestamp) >= 2:
             dt = self.timestamp[1] - self.timestamp[0]
             transient_steps = int(transient_time / dt)
         else:
             transient_steps = 0
-        
+
         # UAV 2~6 の誤差について統計を計算
         for uav_id in range(2, 7):
             key = f"uav{uav_id}_fused_error"
             if key in self.fused_RL_errors:
                 errors = self.fused_RL_errors[key]
-                
+
                 # 過渡状態を除外し、有効な誤差のみを抽出
                 stable_errors = [e for e in errors[transient_steps:] if e is not None and not np.isnan(e)]
-                
+
                 if stable_errors:
                     mean_error = np.mean(stable_errors)
                     variance = np.var(stable_errors)
@@ -74,24 +76,24 @@ class DataLogger:
                         'std': None,
                         'num_samples': 0
                     }
-        
+
         return statistics
 
     def print_fused_RL_error_statistics(self, transient_time: float = 10.0):
         """
         融合推定誤差の統計情報をコンソールに表示する関数
-        
+
         Args:
             transient_time (float): 過渡状態として除外する時間 [秒]
         """
         statistics = self.calc_fused_RL_error_statistics(transient_time)
-        
+
         print("\n" + "="*70)
         print(f"  融合RL推定誤差の統計 ({transient_time}秒後から安定状態)")
         print("="*70)
         print(f"{'UAV Pair':<10} | {'Mean Error (m)':<18} | {'Variance':<15} | {'Std Dev (m)':<15}")
         print("-" * 70)
-        
+
         for uav_id in range(2, 7):
             if uav_id in statistics:
                 stats = statistics[uav_id]
@@ -99,35 +101,35 @@ class DataLogger:
                     print(f" {uav_id}→1    | {stats['mean']:<18.6f} | {stats['variance']:<15.6f} | {stats['std']:<15.6f}")
                 else:
                     print(f" {uav_id}→1    | {'N/A':<18} | {'N/A':<15} | {'N/A':<15}")
-        
+
         print("="*70)
         return statistics
 
-    def save_fused_RL_error_statistics(self, transient_time: float = 10.0, 
+    def save_fused_RL_error_statistics(self, transient_time: float = 10.0,
                                        filename: Optional[str] = None,
                                        format: str = 'json') -> str:
         """
         融合推定誤差の統計情報を外部ファイルに保存する関数
-        
+
         Args:
             transient_time (float): 過渡状態として除外する時間 [秒]
             filename (Optional[str]): 保存するファイル名（Noneの場合は自動生成）
             format (str): 保存形式 ('json' または 'txt')
-            
+
         Returns:
             str: 保存されたファイルのパス
         """
         statistics = self.calc_fused_RL_error_statistics(transient_time)
-        
+
         # ファイル名が指定されていない場合は自動生成
         if filename is None:
             timestamp_str = self._creation_time.strftime(r'%Y-%m-%d-%H-%M-%S')
             filename = f'fused_RL_error_statistics_{timestamp_str}.{format}'
 
-        stats_dir = os.path.join(self.save_dir, 'statistics', format)
+        stats_dir = PathProvider.get_statistics_dir_path(save_dir=self.save_dir, format=format)
         os.makedirs(stats_dir, exist_ok=True)
-        file_path = os.path.join(stats_dir, filename)
-        
+        file_path = PathProvider.get_save_filepath(save_dir=stats_dir, save_filename=filename)
+
         if format == 'json':
             # JSON形式で保存
             # NumPy型をPython標準型に変換
@@ -136,7 +138,7 @@ class DataLogger:
                 'timestamp': self._creation_time.strftime(r'%Y-%m-%d %H:%M:%S'),
                 'statistics': {}
             }
-            
+
             for uav_id, stats in statistics.items():
                 json_data['statistics'][f'UAV_{uav_id}_to_1'] = {
                     'mean': float(stats['mean']) if stats['mean'] is not None else None,
@@ -144,10 +146,10 @@ class DataLogger:
                     'std': float(stats['std']) if stats['std'] is not None else None,
                     'num_samples': int(stats['num_samples'])
                 }
-            
+
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(json_data, f, indent=4, ensure_ascii=False)
-            
+
         else:  # txt形式で保存
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write("="*70 + "\n")
@@ -156,7 +158,7 @@ class DataLogger:
                 f.write("="*70 + "\n\n")
                 f.write(f"{'UAV Pair':<10} | {'Mean Error (m)':<18} | {'Variance':<15} | {'Std Dev (m)':<15}\n")
                 f.write("-" * 70 + "\n")
-                
+
                 for uav_id in range(2, 7):
                     if uav_id in statistics:
                         stats = statistics[uav_id]
@@ -164,13 +166,13 @@ class DataLogger:
                             f.write(f" {uav_id}→1    | {stats['mean']:<18.6f} | {stats['variance']:<15.6f} | {stats['std']:<15.6f}\n")
                         else:
                             f.write(f" {uav_id}→1    | {'N/A':<18} | {'N/A':<15} | {'N/A':<15}\n")
-                
+
                 f.write("="*70 + "\n")
                 f.write(f"\nサンプル数:\n")
                 for uav_id in range(2, 7):
                     if uav_id in statistics:
                         f.write(f"  UAV {uav_id}→1: {statistics[uav_id]['num_samples']} samples\n")
-        
+
         print(f"Statistics successfully saved to {file_path}")
         return file_path
 
@@ -184,9 +186,9 @@ class DataLogger:
         if filename is None:
             filename = f'uav_trajectories_{self._creation_time.strftime(r"%Y-%m-%d-%H-%M-%S")}.csv'
 
-        csv_dir = os.path.join(self.save_dir, 'csv', 'trajectories')
+        csv_dir = PathProvider.get_trajectory_csv_dir_path(save_dir=self.save_dir)
         os.makedirs(csv_dir, exist_ok=True)
-        file_path = os.path.join(csv_dir, filename)
+        file_path = PathProvider.get_save_filepath(save_dir=csv_dir, save_filename=filename)
 
         with open(file_path, mode='w', newline='') as file:
             writer = csv.writer(file)
@@ -210,10 +212,10 @@ class DataLogger:
         """
         if filename is None:
             filename = f'fused_RL_error_{self._creation_time.strftime(r"%Y-%m-%d-%H-%M-%S")}.csv'
-        
-        csv_dir = os.path.join(self.save_dir, 'csv', 'RL_errors')
+
+        csv_dir = PathProvider.get_RL_error_csv_dir_path(save_dir=self.save_dir)
         os.makedirs(csv_dir, exist_ok=True)
-        file_path = os.path.join(csv_dir, filename)
+        file_path = PathProvider.get_save_filepath(save_dir=csv_dir, save_filename=filename)
 
         with open(file_path, mode='w', newline='') as file:
             writer = csv.writer(file)
