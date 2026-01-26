@@ -1,5 +1,6 @@
 import os
 import shutil
+import glob
 
 class FileSystem_Adapter:
     """ファイル・フォルダ関連の操作"""
@@ -20,6 +21,12 @@ class FileSystem_Adapter:
     def get_file_extension(file_path: str) -> str:
         """ファイル名から拡張子を取得"""
         return os.path.splitext(file_path)[1].lower()
+
+    @staticmethod
+    def get_files_with_extension(directory: str, extension: str) -> list:
+        """指定したディレクトリ内の特定の拡張子のファイルをすべて取得"""
+        extension = extension.lower()
+        return glob.glob(os.path.join(directory, extension))
 
     @staticmethod
     def directory_exists(path: str) -> bool:

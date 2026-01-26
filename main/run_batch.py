@@ -1,13 +1,11 @@
-import os
-import glob
 import traceback
 import sys
 import datetime
-import shutil
 
 from config_loader import ConfigLoader
 from controller import MainController
 from path_provider import PathProvider
+from filesystem_adapter import FileSystem_Adapter
 
 
 if __name__ == '__main__':
@@ -15,7 +13,7 @@ if __name__ == '__main__':
     config_dir = PathProvider.get_config_dir_path()
 
     # .yaml ファイルを全て取得
-    config_files = glob.glob(os.path.join(config_dir, '*.yaml'))
+    config_files = FileSystem_Adapter.get_files_with_extension(directory=config_dir, extension='*.yaml')
 
     if not config_files:
         print("No configuration files found in", config_dir)
@@ -25,17 +23,17 @@ if __name__ == '__main__':
 
     for config_file in config_files:
         print(f"\n{'='*20}")
-        print(f"Running simulation with config: {os.path.basename(config_file)}")
+        print(f"Running simulation with config: {FileSystem_Adapter.get_filename(config_file)}.yaml")
         print(f"{'='*20}")
 
         try:
             # --- データ保存ディレクトリの生成 ---
-            config_filename = os.path.splitext(os.path.basename(config_file))[0]
+            config_filename = FileSystem_Adapter.get_filename(file_path=config_file)
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
             save_dir = PathProvider.get_saved_data_dir_path(config_filename=config_filename, timestamp=timestamp)
 
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
+            if not FileSystem_Adapter.directory_exists(path=save_dir):
+                FileSystem_Adapter.create_directory(path=save_dir)
 
             # --- シミュレーション実行 ---
             simulation_params = ConfigLoader.load(config_file)
@@ -47,7 +45,7 @@ if __name__ == '__main__':
             controller.run()
 
             # --- 使用した設定ファイルのコピー ---
-            shutil.copy(config_file, save_dir)
+            FileSystem_Adapter.file_copy(source_path=config_file, destination_path=save_dir)
             print(f"Config file copied to {save_dir}")
 
         except Exception as e:
