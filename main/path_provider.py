@@ -18,10 +18,6 @@ class PathProvider:
         return os.path.join(save_dir, 'graph', 'trajectories')
 
     @staticmethod
-    def get_graph_filepath(graph_dir: str, save_filename) -> str:
-        return os.path.join(graph_dir, save_filename)
-
-    @staticmethod
     def get_RL_error_graph_dir_path(save_dir: str) -> str:
         return os.path.join(save_dir, 'graph', 'RL_errors')
 

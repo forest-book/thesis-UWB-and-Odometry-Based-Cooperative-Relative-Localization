@@ -48,7 +48,7 @@ class Plotter:
 
             graph_dir = PathProvider.get_trajectory_graph_dir_path(save_dir=save_dir)
             os.makedirs(graph_dir, exist_ok=True)
-            save_path = PathProvider.get_graph_filepath(graph_dir=graph_dir, save_filename=save_filename)
+            save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
 
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
@@ -117,7 +117,7 @@ class Plotter:
 
             graph_dir = PathProvider.get_RL_error_graph_dir_path(save_dir=save_dir)
             os.makedirs(graph_dir, exist_ok=True)
-            save_path = PathProvider.get_graph_filepath(graph_dir=graph_dir, save_filename=save_filename)
+            save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
 
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
