@@ -44,13 +44,13 @@ class Plotter:
             # 保存ファイル名の生成
             if save_filename is None:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
-                save_filename = f'uav_trajectories_graph_{timestamp_str}.png'
+                save_filename = f'uav_trajectories_graph_{timestamp_str}.svg'
 
             graph_dir = PathProvider.get_trajectory_graph_dir_path(save_dir=save_dir)
             os.makedirs(graph_dir, exist_ok=True)
             save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
 
-            plt.savefig(save_path)
+            plt.savefig(save_path, format='svg')
             print(f"Graph successfully saved to {save_path}")
             if is_result_show:
                 plt.show()
@@ -113,13 +113,13 @@ class Plotter:
             # 保存ファイル名の生成
             if save_filename is None:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
-                save_filename = f'fused_RL_errors_graph_{timestamp_str}.png'
+                save_filename = f'fused_RL_errors_graph_{timestamp_str}.svg'
 
             graph_dir = PathProvider.get_RL_error_graph_dir_path(save_dir=save_dir)
             os.makedirs(graph_dir, exist_ok=True)
             save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
 
-            plt.savefig(save_path)
+            plt.savefig(save_path, format='svg')
             print(f"Graph successfully saved to {save_path}")
             if is_result_show:
                 plt.show()
