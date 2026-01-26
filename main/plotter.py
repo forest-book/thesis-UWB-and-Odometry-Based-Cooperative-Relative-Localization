@@ -4,6 +4,7 @@ import datetime
 import os
 from typing import Optional
 
+from path_provider import PathProvider
 
 class Plotter:
     """
@@ -45,10 +46,10 @@ class Plotter:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
                 save_filename = f'uav_trajectories_graph_{timestamp_str}.png'
 
-            graph_dir = os.path.join(save_dir, 'graph', 'trajectories')
+            graph_dir = PathProvider.get_trajectory_graph_dir_path(save_dir=save_dir)
             os.makedirs(graph_dir, exist_ok=True)
-            save_path = os.path.join(graph_dir, save_filename)
-            
+            save_path = PathProvider.get_graph_filepath(graph_dir=graph_dir, save_filename=save_filename)
+
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
             if is_result_show:
@@ -114,9 +115,9 @@ class Plotter:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
                 save_filename = f'fused_RL_errors_graph_{timestamp_str}.png'
 
-            graph_dir = os.path.join(save_dir, 'graph', 'RL_errors')
+            graph_dir = PathProvider.get_RL_error_graph_dir_path(save_dir=save_dir)
             os.makedirs(graph_dir, exist_ok=True)
-            save_path = os.path.join(graph_dir, save_filename)
+            save_path = PathProvider.get_graph_filepath(graph_dir=graph_dir, save_filename=save_filename)
 
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
