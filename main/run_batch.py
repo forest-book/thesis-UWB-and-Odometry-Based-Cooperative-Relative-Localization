@@ -7,10 +7,13 @@ import shutil
 
 from config_loader import ConfigLoader
 from controller import MainController
+from path_provider import PathProvider
+
 
 if __name__ == '__main__':
     # 設定ファイルが格納されているディレクトリ
-    config_dir = "../config"
+    config_dir = PathProvider.get_config_dir_path()
+
     # .yaml ファイルを全て取得
     config_files = glob.glob(os.path.join(config_dir, '*.yaml'))
 
@@ -29,7 +32,7 @@ if __name__ == '__main__':
             # --- データ保存ディレクトリの生成 ---
             config_filename = os.path.splitext(os.path.basename(config_file))[0]
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-            save_dir = f'../data/{config_filename}_{timestamp}'
+            save_dir = PathProvider.get_saved_data_dir_path(config_filename=config_filename, timestamp=timestamp)
 
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
@@ -42,7 +45,7 @@ if __name__ == '__main__':
                 is_result_show=False
             )
             controller.run()
-            
+
             # --- 使用した設定ファイルのコピー ---
             shutil.copy(config_file, save_dir)
             print(f"Config file copied to {save_dir}")
