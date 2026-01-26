@@ -305,18 +305,18 @@ class MainController:
             self.show_simulation_progress(loop=loop)
 
         # ロギングした推定誤差をcsv出力
-        trajectory_filename = self.data_logger.save_UAV_trajectories_data_to_csv()
-        error_filename = self.data_logger.save_fused_RL_errors_to_csv()
+        trajectory_filepath = self.data_logger.save_UAV_trajectories_data_to_csv()
+        error_filepath = self.data_logger.save_fused_RL_errors_to_csv()
 
         # グラフ生成
         Plotter.plot_UAV_trajectories_from_csv(
-            csv_path=trajectory_filename, 
-            save_dir=self.save_dir, 
+            csv_path=trajectory_filepath,
+            save_dir=self.save_dir,
             is_result_show=self.is_result_show
         )
         Plotter.plot_fused_RL_errors_from_csv(
-            csv_path=error_filename, 
-            save_dir=self.save_dir, 
+            csv_path=error_filepath,
+            save_dir=self.save_dir,
             is_result_show=self.is_result_show
         )
 
