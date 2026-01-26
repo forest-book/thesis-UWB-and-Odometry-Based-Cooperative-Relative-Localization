@@ -17,6 +17,11 @@ class FileSystem_Adapter:
         return os.path.splitext(os.path.basename(file_path))[0]
 
     @staticmethod
+    def get_file_extension(file_path: str) -> str:
+        """ファイル名から拡張子を取得"""
+        return os.path.splitext(file_path)[1].lower()
+
+    @staticmethod
     def directory_exists(path: str) -> bool:
         return os.path.exists(path)
 
