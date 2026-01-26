@@ -21,5 +21,5 @@ class FileSystem_Adapter:
         return os.path.exists(path)
 
     @staticmethod
-    def create_directory(path: str) -> None:
-        os.makedirs(path)
+    def create_directory(path: str, exist_ok = True) -> None:
+        os.makedirs(path, exist_ok=exist_ok)
