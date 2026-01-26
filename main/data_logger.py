@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 import numpy as np
 from typing import List, Dict, Optional
 from collections import defaultdict
@@ -10,7 +11,10 @@ class DataLogger:
     """
     シミュレーション中のデータを収集し、CSVファイルに保存するクラス。
     """
-    def __init__(self):
+    def __init__(self, save_dir: str):
+        self.save_dir = save_dir
+        os.makedirs(self.save_dir, exist_ok=True)
+
         self.timestamp: List[float] = []
         self.uav_trajectories: Dict[str, List[np.ndarray]] = defaultdict(list)
         self.fused_RL_errors: Dict[str, List[float]] = defaultdict(list)
@@ -118,12 +122,11 @@ class DataLogger:
         # ファイル名が指定されていない場合は自動生成
         if filename is None:
             timestamp_str = self._creation_time.strftime(r'%Y-%m-%d-%H-%M-%S')
-            if format == 'json':
-                filename = f'fused_RL_error_statistics_{timestamp_str}.json'
-            else:
-                filename = f'fused_RL_error_statistics_{timestamp_str}.txt'
-        
-        dir_path = f"../data/statistics/{format}/{filename}"
+            filename = f'fused_RL_error_statistics_{timestamp_str}.{format}'
+
+        stats_dir = os.path.join(self.save_dir, 'statistics', format)
+        os.makedirs(stats_dir, exist_ok=True)
+        file_path = os.path.join(stats_dir, filename)
         
         if format == 'json':
             # JSON形式で保存
@@ -142,11 +145,11 @@ class DataLogger:
                     'num_samples': int(stats['num_samples'])
                 }
             
-            with open(dir_path, 'w', encoding='utf-8') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(json_data, f, indent=4, ensure_ascii=False)
             
         else:  # txt形式で保存
-            with open(dir_path, 'w', encoding='utf-8') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 f.write("="*70 + "\n")
                 f.write(f"  融合RL推定誤差の統計 ({transient_time}秒後から安定状態)\n")
                 f.write(f"  生成日時: {self._creation_time.strftime(r'%Y-%m-%d %H:%M:%S')}\n")
@@ -168,8 +171,8 @@ class DataLogger:
                     if uav_id in statistics:
                         f.write(f"  UAV {uav_id}→1: {statistics[uav_id]['num_samples']} samples\n")
         
-        print(f"Statistics successfully saved to {dir_path}")
-        return dir_path
+        print(f"Statistics successfully saved to {file_path}")
+        return file_path
 
     def save_UAV_trajectories_data_to_csv(self, filename: Optional[str] = None):
         """
@@ -180,9 +183,12 @@ class DataLogger:
         """
         if filename is None:
             filename = f'uav_trajectories_{self._creation_time.strftime(r"%Y-%m-%d-%H-%M-%S")}.csv'
-        
-        dir_path = "../data/csv/trajectories/" + filename
-        with open(dir_path, mode='w', newline='') as file:
+
+        csv_dir = os.path.join(self.save_dir, 'csv', 'trajectories')
+        os.makedirs(csv_dir, exist_ok=True)
+        file_path = os.path.join(csv_dir, filename)
+
+        with open(file_path, mode='w', newline='') as file:
             writer = csv.writer(file)
             # Write headers
             headers = ['time'] + [f'uav{i}_true_pos_x' for i in range(1, 7)] + [f'uav{i}_true_pos_y' for i in range(1, 7)]
@@ -192,8 +198,8 @@ class DataLogger:
             for t, positions in zip(self.timestamp, zip(*[self.uav_trajectories[f'uav{i}_true_pos'] for i in range(1, 7)])):
                 row = [t] + [pos[0] for pos in positions] + [pos[1] for pos in positions]
                 writer.writerow(row)
-        print(f"Data successfully saved to {filename}")
-        return filename
+        print(f"Data successfully saved to {file_path}")
+        return file_path
 
     def save_fused_RL_errors_to_csv(self, filename: Optional[str] = None):
         """
@@ -205,8 +211,11 @@ class DataLogger:
         if filename is None:
             filename = f'fused_RL_error_{self._creation_time.strftime(r"%Y-%m-%d-%H-%M-%S")}.csv'
         
-        dir_path = "../data/csv/RL_errors/" + filename
-        with open(dir_path, mode='w', newline='') as file:
+        csv_dir = os.path.join(self.save_dir, 'csv', 'RL_errors')
+        os.makedirs(csv_dir, exist_ok=True)
+        file_path = os.path.join(csv_dir, filename)
+
+        with open(file_path, mode='w', newline='') as file:
             writer = csv.writer(file)
             # Write headers
             headers = ['time'] + [f'uav{i}_fused_error' for i in range(2, 7)]
@@ -216,8 +225,8 @@ class DataLogger:
             for t, errors in zip(self.timestamp, zip(*[self.fused_RL_errors[f'uav{i}_fused_error'] for i in range(2, 7)])):
                 row = [t] + list(errors)
                 writer.writerow(row)
-        print(f"Data successfully saved to {filename}")
-        return filename
+        print(f"Data successfully saved to {file_path}")
+        return file_path
 
     def get_latest_trajectory_filename(self) -> str:
         """最新の軌道データファイル名を取得"""

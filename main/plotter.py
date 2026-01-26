@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
+import os
 from typing import Optional
 
 
@@ -10,18 +11,19 @@ class Plotter:
     """
 
     @staticmethod
-    def plot_UAV_trajectories_from_csv(filename: str, save_filename: Optional[str] = None, is_result_show: bool = True):
+    def plot_UAV_trajectories_from_csv(csv_path: str, save_dir: str, save_filename: Optional[str] = None, is_result_show: bool = True):
         """
         複数のUAVの軌跡を2Dプロットする関数
 
         Args:
-            filename (str): 読み込むCSVファイル名
+            csv_path (str): 読み込むCSVファイルのフルパス
+            save_dir (str): グラフを保存するディレクトリ
             save_filename (Optional[str]): 保存するグラフファイル名（Noneの場合は自動生成）
+            is_result_show (bool): プロットを表示するかどうか
         """
         try:
             # Read CSV file
-            file_path = f"../data/csv/trajectories/{filename}"
-            data = pd.read_csv(file_path)
+            data = pd.read_csv(csv_path)
 
             plt.figure(figsize=(10, 8))
             for i in range(1, 7):
@@ -43,30 +45,35 @@ class Plotter:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
                 save_filename = f'uav_trajectories_graph_{timestamp_str}.png'
 
-            save_path = f'../data/graph/trajectories/{save_filename}'
+            graph_dir = os.path.join(save_dir, 'graph', 'trajectories')
+            os.makedirs(graph_dir, exist_ok=True)
+            save_path = os.path.join(graph_dir, save_filename)
+            
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
             if is_result_show:
                 plt.show()
+            plt.close()
 
         except FileNotFoundError:
-            print(f"Error: The file {filename} was not found.")
+            print(f"Error: The file {csv_path} was not found.")
         except Exception as e:
             print(f"An error occurred while plotting: {e}")
 
     @staticmethod
-    def plot_fused_RL_errors_from_csv(filename: str, save_filename: Optional[str] = None, is_result_show: bool = True):
+    def plot_fused_RL_errors_from_csv(csv_path: str, save_dir: str, save_filename: Optional[str] = None, is_result_show: bool = True):
         """
         融合推定誤差をCSVファイルから読み込んでプロットする関数
 
         Args:
-            filename (str): 読み込むCSVファイル名
+            csv_path (str): 読み込むCSVファイルのフルパス
+            save_dir (str): グラフを保存するディレクトリ
             save_filename (Optional[str]): 保存するグラフファイル名（Noneの場合は自動生成）
+            is_result_show (bool): プロットを表示するかどうか
         """
         try:
             # Read CSV file
-            file_path = f"../data/csv/RL_errors/{filename}"
-            data = pd.read_csv(file_path)
+            data = pd.read_csv(csv_path)
 
             fig, ax = plt.subplots(figsize=(12, 6))
             colors = {2: 'orange', 3: 'green', 4: 'red', 5: 'magenta', 6: 'brown'}
@@ -107,13 +114,17 @@ class Plotter:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
                 save_filename = f'fused_RL_errors_graph_{timestamp_str}.png'
 
-            save_path = f'../data/graph/RL_errors/{save_filename}'
+            graph_dir = os.path.join(save_dir, 'graph', 'RL_errors')
+            os.makedirs(graph_dir, exist_ok=True)
+            save_path = os.path.join(graph_dir, save_filename)
+
             plt.savefig(save_path)
             print(f"Graph successfully saved to {save_path}")
             if is_result_show:
                 plt.show()
+            plt.close()
 
         except FileNotFoundError:
-            print(f"Error: The file {filename} was not found.")
+            print(f"Error: The file {csv_path} was not found.")
         except Exception as e:
             print(f"An error occurred while plotting: {e}")

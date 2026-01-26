@@ -9,8 +9,9 @@ from measurement_filter import MeasurementFilter
 
 class MainController:
     """アプリケーション全体を管理し，メインループを実行する"""
-    def __init__(self, params: dict, is_result_show: bool = True):
+    def __init__(self, params: dict, save_dir: str, is_result_show: bool = True):
         self.params = params
+        self.save_dir = save_dir
         self.uavs: List[UAV] = []
         self.loop_amount: int = 0
         self.dt = params['T']   # サンプリング周期
@@ -18,7 +19,7 @@ class MainController:
         self.is_result_show = is_result_show
 
         self.estimator = Estimator()
-        self.data_logger = DataLogger()
+        self.data_logger = DataLogger(save_dir=self.save_dir)
 
         # 測定値フィルタ（指数移動平均フィルタ）
         filter_alpha = params.get('FILTER', {}).get('alpha', 0.2)
@@ -308,8 +309,16 @@ class MainController:
         error_filename = self.data_logger.save_fused_RL_errors_to_csv()
 
         # グラフ生成
-        Plotter.plot_UAV_trajectories_from_csv(trajectory_filename, is_result_show=self.is_result_show)
-        Plotter.plot_fused_RL_errors_from_csv(error_filename, is_result_show=self.is_result_show)
+        Plotter.plot_UAV_trajectories_from_csv(
+            csv_path=trajectory_filename, 
+            save_dir=self.save_dir, 
+            is_result_show=self.is_result_show
+        )
+        Plotter.plot_fused_RL_errors_from_csv(
+            csv_path=error_filename, 
+            save_dir=self.save_dir, 
+            is_result_show=self.is_result_show
+        )
 
         # 統計情報の表示と保存
         self.data_logger.print_fused_RL_error_statistics(transient_time=120.0)
