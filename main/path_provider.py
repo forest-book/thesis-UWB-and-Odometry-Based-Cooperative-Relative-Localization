@@ -22,8 +22,8 @@ class PathProvider:
         return os.path.join(save_dir, 'graph', 'RL_errors')
 
     @staticmethod
-    def get_statistics_dir_path(save_dir: str, format: str) -> str:
-        return os.path.join(save_dir, 'statistics', format)
+    def get_statistics_dir_path(save_dir: str, file_format: str) -> str:
+        return os.path.join(save_dir, 'statistics', file_format)
 
     @staticmethod
     def get_save_filepath(save_dir: str, save_filename: str) -> str:

@@ -107,14 +107,14 @@ class DataLogger:
 
     def save_fused_RL_error_statistics(self, transient_time: float = 10.0,
                                        filename: Optional[str] = None,
-                                       format: str = 'json') -> str:
+                                       file_format: str = 'json') -> str:
         """
         融合推定誤差の統計情報を外部ファイルに保存する関数
 
         Args:
             transient_time (float): 過渡状態として除外する時間 [秒]
             filename (Optional[str]): 保存するファイル名（Noneの場合は自動生成）
-            format (str): 保存形式 ('json' または 'txt')
+            file_format (str): 保存形式 ('json' または 'txt')
 
         Returns:
             str: 保存されたファイルのパス
@@ -124,13 +124,13 @@ class DataLogger:
         # ファイル名が指定されていない場合は自動生成
         if filename is None:
             timestamp_str = self._creation_time.strftime(r'%Y-%m-%d-%H-%M-%S')
-            filename = f'fused_RL_error_statistics_{timestamp_str}.{format}'
+            filename = f'fused_RL_error_statistics_{timestamp_str}.{file_format}'
 
-        stats_dir = PathProvider.get_statistics_dir_path(save_dir=self.save_dir, format=format)
+        stats_dir = PathProvider.get_statistics_dir_path(save_dir=self.save_dir, file_format=file_format)
         os.makedirs(stats_dir, exist_ok=True)
         file_path = PathProvider.get_save_filepath(save_dir=stats_dir, save_filename=filename)
 
-        if format == 'json':
+        if file_format == 'json':
             # JSON形式で保存
             # NumPy型をPython標準型に変換
             json_data = {
@@ -172,9 +172,6 @@ class DataLogger:
                 for uav_id in range(2, 7):
                     if uav_id in statistics:
                         f.write(f"  UAV {uav_id}→1: {statistics[uav_id]['num_samples']} samples\n")
-
-        print(f"Statistics successfully saved to {file_path}")
-        return file_path
 
     def save_UAV_trajectories_data_to_csv(self, filename: Optional[str] = None):
         """

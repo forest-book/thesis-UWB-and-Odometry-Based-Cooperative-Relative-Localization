@@ -323,4 +323,4 @@ class MainController:
         # 統計情報の表示と保存
         self.data_logger.print_fused_RL_error_statistics(transient_time=120.0)
         self.data_logger.save_fused_RL_error_statistics(transient_time=120.0)
-        self.data_logger.save_fused_RL_error_statistics(transient_time=120.0, format='txt')
+        self.data_logger.save_fused_RL_error_statistics(transient_time=120.0, file_format='txt')
