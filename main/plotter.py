@@ -4,7 +4,7 @@ import datetime
 from typing import Optional
 
 from path_provider import PathProvider
-from filesystem_adapter import FileSystem_Adapter
+from filesystem_adapter import FileSystemAdapter
 
 class Plotter:
     """
@@ -47,7 +47,7 @@ class Plotter:
                 save_filename = f'uav_trajectories_graph_{timestamp_str}.svg'
 
             graph_dir = PathProvider.get_trajectory_graph_dir_path(save_dir=save_dir)
-            FileSystem_Adapter.create_directory(path=graph_dir, exist_ok=True)
+            FileSystemAdapter.create_directory(path=graph_dir, exist_ok=True)
             save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
 
             plt.savefig(save_path, format='svg')
@@ -116,7 +116,7 @@ class Plotter:
                 save_filename = f'fused_RL_errors_graph_{timestamp_str}.svg'
 
             graph_dir = PathProvider.get_RL_error_graph_dir_path(save_dir=save_dir)
-            FileSystem_Adapter.create_directory(path=graph_dir, exist_ok=True)
+            FileSystemAdapter.create_directory(path=graph_dir, exist_ok=True)
             save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
 
             plt.savefig(save_path, format='svg')

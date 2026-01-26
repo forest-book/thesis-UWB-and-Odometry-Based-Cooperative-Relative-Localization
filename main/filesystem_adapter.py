@@ -2,7 +2,7 @@ import os
 import shutil
 import glob
 
-class FileSystem_Adapter:
+class FileSystemAdapter:
     """ファイル・フォルダ関連の操作"""
     @staticmethod
     def file_exists(path: str) -> bool:

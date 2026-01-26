@@ -6,7 +6,7 @@ import json
 from typing import Dict, Any
 
 from quadcopter import Scenario
-from filesystem_adapter import FileSystem_Adapter
+from filesystem_adapter import FileSystemAdapter
 
 
 class ConfigLoader:
@@ -23,7 +23,7 @@ class ConfigLoader:
         Returns:
             Dict[str, Any]: 設定パラメータの辞書
         """
-        if not FileSystem_Adapter.file_exists(path=filepath):
+        if not FileSystemAdapter.file_exists(path=filepath):
             raise FileNotFoundError(f"設定ファイルが見つかりません: {filepath}")
 
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -61,7 +61,7 @@ class ConfigLoader:
                 "インストール: pip install pyyaml"
             )
 
-        if not FileSystem_Adapter.file_exists(path=filepath):
+        if not FileSystemAdapter.file_exists(path=filepath):
             raise FileNotFoundError(f"設定ファイルが見つかりません: {filepath}")
 
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -108,7 +108,7 @@ class ConfigLoader:
         Returns:
             Dict[str, Any]: 設定パラメータの辞書
         """
-        ext = FileSystem_Adapter.get_file_extension(file_path=filepath)
+        ext = FileSystemAdapter.get_file_extension(file_path=filepath)
 
         if ext == '.json':
             return ConfigLoader.load_from_json(filepath)
