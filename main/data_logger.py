@@ -1,12 +1,12 @@
 import csv
 import json
-import os
 import numpy as np
 from typing import List, Dict, Optional
 from collections import defaultdict
 import datetime
 
 from path_provider import PathProvider
+from filesystem_adapter import FileSystemAdapter
 
 
 class DataLogger:
@@ -15,7 +15,7 @@ class DataLogger:
     """
     def __init__(self, save_dir: str):
         self.save_dir = save_dir
-        os.makedirs(self.save_dir, exist_ok=True)
+        FileSystemAdapter.create_directory(path=self.save_dir, exist_ok=True)
 
         self.timestamp: List[float] = []
         self.uav_trajectories: Dict[str, List[np.ndarray]] = defaultdict(list)
@@ -127,7 +127,7 @@ class DataLogger:
             filename = f'fused_RL_error_statistics_{timestamp_str}.{file_format}'
 
         stats_dir = PathProvider.get_statistics_dir_path(save_dir=self.save_dir, file_format=file_format)
-        os.makedirs(stats_dir, exist_ok=True)
+        FileSystemAdapter.create_directory(path=stats_dir, exist_ok=True)
         file_path = PathProvider.get_save_filepath(save_dir=stats_dir, save_filename=filename)
 
         if file_format == 'json':
@@ -184,7 +184,7 @@ class DataLogger:
             filename = f'uav_trajectories_{self._creation_time.strftime(r"%Y-%m-%d-%H-%M-%S")}.csv'
 
         csv_dir = PathProvider.get_trajectory_csv_dir_path(save_dir=self.save_dir)
-        os.makedirs(csv_dir, exist_ok=True)
+        FileSystemAdapter.create_directory(path=csv_dir, exist_ok=True)
         file_path = PathProvider.get_save_filepath(save_dir=csv_dir, save_filename=filename)
 
         with open(file_path, mode='w', newline='') as file:
@@ -211,7 +211,7 @@ class DataLogger:
             filename = f'fused_RL_error_{self._creation_time.strftime(r"%Y-%m-%d-%H-%M-%S")}.csv'
 
         csv_dir = PathProvider.get_RL_error_csv_dir_path(save_dir=self.save_dir)
-        os.makedirs(csv_dir, exist_ok=True)
+        FileSystemAdapter.create_directory(path=csv_dir, exist_ok=True)
         file_path = PathProvider.get_save_filepath(save_dir=csv_dir, save_filename=filename)
 
         with open(file_path, mode='w', newline='') as file:
