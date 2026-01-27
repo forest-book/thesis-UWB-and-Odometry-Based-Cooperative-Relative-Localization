@@ -9,7 +9,7 @@ class FileSystemAdapter:
         return os.path.exists(path)
 
     @staticmethod
-    def file_copy(source_path: str, destination_path) -> None:
+    def file_copy(source_path: str, destination_path: str) -> None:
         shutil.copy(source_path, destination_path)
 
     @staticmethod
@@ -30,8 +30,8 @@ class FileSystemAdapter:
 
     @staticmethod
     def directory_exists(path: str) -> bool:
-        return os.path.exists(path)
+        return os.path.isdir(path)
 
     @staticmethod
-    def create_directory(path: str, exist_ok = True) -> None:
+    def create_directory(path: str, exist_ok: bool = True) -> None:
         os.makedirs(path, exist_ok=exist_ok)
