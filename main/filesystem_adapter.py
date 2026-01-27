@@ -1,12 +1,13 @@
 import os
 import shutil
 import glob
+from typing import List
 
 class FileSystemAdapter:
     """ファイル・フォルダ関連の操作"""
     @staticmethod
     def file_exists(path: str) -> bool:
-        return os.path.exists(path)
+        return os.path.isfile(path)
 
     @staticmethod
     def file_copy(source_path: str, destination_path: str) -> None:
@@ -23,7 +24,7 @@ class FileSystemAdapter:
         return os.path.splitext(file_path)[1].lower()
 
     @staticmethod
-    def get_files_with_extension(directory: str, extension: str) -> list:
+    def get_files_with_extension(directory: str, extension: str) -> List[str]:
         """指定したディレクトリ内の特定の拡張子のファイルをすべて取得"""
         extension = extension.lower()
         return glob.glob(os.path.join(directory, extension))
