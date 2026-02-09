@@ -44,14 +44,21 @@ class Plotter:
             # 保存ファイル名の生成
             if save_filename is None:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
-                save_filename = f'uav_trajectories_graph_{timestamp_str}.svg'
+                save_svg_filename = f'uav_trajectories_graph_{timestamp_str}.svg'
+                save_png_filename = f'uav_trajectories_graph_{timestamp_str}.png'
+            else:
+                save_svg_filename = save_filename.replace('.png', '.svg') if save_filename.endswith('.png') else save_filename + '.svg'
+                save_png_filename = save_filename.replace('.svg', '.png') if save_filename.endswith('.svg') else save_filename + '.png'
 
             graph_dir = PathProvider.get_trajectory_graph_dir_path(save_dir=save_dir)
             FileSystemAdapter.create_directory(path=graph_dir, exist_ok=True)
-            save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
+            save_svg_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_svg_filename)
+            save_png_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_png_filename)
+            plt.savefig(save_png_path)
+            print(f"Graph successfully saved to {save_png_path}")
 
-            plt.savefig(save_path, format='svg')
-            print(f"Graph successfully saved to {save_path}")
+            plt.savefig(save_svg_path, format='svg')
+            print(f"Graph successfully saved to {save_svg_path}")
             if is_result_show:
                 plt.show()
             plt.close()
@@ -113,14 +120,21 @@ class Plotter:
             # 保存ファイル名の生成
             if save_filename is None:
                 timestamp_str = datetime.datetime.now().strftime(r'%Y-%m-%d-%H-%M-%S')
-                save_filename = f'fused_RL_errors_graph_{timestamp_str}.svg'
+                save_svg_filename = f'fused_RL_errors_graph_{timestamp_str}.svg'
+                save_png_filename = f'fused_RL_errors_graph_{timestamp_str}.png'
+            else:
+                save_svg_filename = save_filename.replace('.png', '.svg') if save_filename.endswith('.png') else save_filename + '.svg'
+                save_png_filename = save_filename.replace('.svg', '.png') if save_filename.endswith('.svg') else save_filename + '.png'
 
             graph_dir = PathProvider.get_RL_error_graph_dir_path(save_dir=save_dir)
             FileSystemAdapter.create_directory(path=graph_dir, exist_ok=True)
-            save_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_filename)
+            save_svg_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_svg_filename)
+            save_png_path = PathProvider.get_save_filepath(save_dir=graph_dir, save_filename=save_png_filename)
+            plt.savefig(save_png_path)
+            print(f"Graph successfully saved to {save_png_path}")
 
-            plt.savefig(save_path, format='svg')
-            print(f"Graph successfully saved to {save_path}")
+            plt.savefig(save_svg_path, format='svg')
+            print(f"Graph successfully saved to {save_svg_path}")
             if is_result_show:
                 plt.show()
             plt.close()
