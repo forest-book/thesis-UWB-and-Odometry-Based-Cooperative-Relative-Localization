@@ -31,8 +31,8 @@ class Plotter:
                 x_positions = data[f'uav{i}_true_pos_x']
                 y_positions = data[f'uav{i}_true_pos_y']
                 plt.plot(x_positions, y_positions, label=f'UAV {i}')
-                plt.scatter(x_positions.iloc[0], y_positions.iloc[0], marker='o', label=f'UAV {i} Start')
-                plt.scatter(x_positions.iloc[-1], y_positions.iloc[-1], marker='x', label=f'UAV {i} End')
+                plt.scatter(x_positions.iloc[0], y_positions.iloc[0], marker='o')
+                plt.scatter(x_positions.iloc[-1], y_positions.iloc[-1], marker='x')
 
             plt.title('UAV Trajectories from CSV')
             plt.xlabel('X position (m)')
@@ -93,7 +93,7 @@ class Plotter:
 
                 if not valid_errors.empty:
                     ax.plot(valid_times, valid_errors,
-                            label=rf'$||\pi_{{{i}1}} - \chi_{{{i}1}}||$',
+                            label=rf'UAV{i}→UAV1',
                             color=colors.get(i, 'k'))
 
             ax.set_title('Consensus-based RL Fusion Estimation', fontsize=20, fontweight='bold')
@@ -143,3 +143,12 @@ class Plotter:
             print(f"Error: The file {csv_path} was not found.")
         except Exception as e:
             print(f"An error occurred while plotting: {e}")
+
+# Plotter.plot_UAV_trajectories_from_csv(
+#     csv_path=r"C:\Users\exper\Documents\GitHub\Lab_slide_storage\卒論発表\data\simulation_config_2026-02-09-19-28-23\csv\trajectories\uav_trajectories_2026-02-09-19-28-23.csv",
+#     save_dir=r"C:\Users\exper\Documents\GitHub\Lab_slide_storage\卒論発表\data\thesis"
+# )
+# Plotter.plot_fused_RL_errors_from_csv(
+#     csv_path=r"C:\Users\exper\Documents\GitHub\Lab_slide_storage\卒論発表\data\graph_dense_traj_baseline_2026-02-10-18-56-06\csv\RL_errors\fused_RL_error_2026-02-10-18-56-06.csv",
+#     save_dir=r"C:\Users\exper\Documents\GitHub\Lab_slide_storage\卒論発表\data\thesis"
+# )
